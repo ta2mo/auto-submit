@@ -11,7 +11,7 @@ jobs:
   build-ad-manager:
     defaults:
       run:
-        working-directory: ad-manager
+        working-directory: ./ad-manager
     # The type of runner that the job will run on
     runs-on: windows-latest
     strategy:
