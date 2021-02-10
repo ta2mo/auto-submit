@@ -33,5 +33,5 @@ jobs:
           pip install -r requirements.txt
 
       - name: packaging
-        run: pyinstaller --onefile
+        run: pyinstaller submit.py --onefile
         
