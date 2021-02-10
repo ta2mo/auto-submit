@@ -33,7 +33,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: packaging
-        run: pyinstaller submit.py --onefile --add-binary ".\driver\chromedriver-85.exe"
+        run: pyinstaller submit.py --onefile --add-binary ./driver/chromedriver-85.exe
 
       - name: archive exe file
         uses: actions/upload-artifact@v2
