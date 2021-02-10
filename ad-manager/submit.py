@@ -73,19 +73,29 @@ def clear_input(driver, class_name):
         logging.error(f'not found class_name={class_name}')
         take_display_screenshot(driver)
 
+logging.basicConfig(filename='./debug.log', level=logging.DEBUG)
 
 options = webdriver.ChromeOptions()
 
 user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
 if platform.system() == 'Windows':
+    logging.debug('exec on windows')
     user_data_path = 'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     options.add_argument(user_data_path)
-    driver = webdriver.Chrome('./driver/chromedriver-85.exe', options=options)
+    try:
+        driver = webdriver.Chrome('./driver/chromedriver-85.exe', options=options)
+    except Exception as e:
+        logging.debug(f'get driver failed. {e}')
 else:
+    logging.debug('exec on other os')
     options.add_argument(user_data_path)
-    driver = webdriver.Chrome(options=options)
+    try:
+        driver = webdriver.Chrome(options=options)
+    except Exception as e:
+        logging.debug(f'get driver failed. {e}')
 
 # 引数
+logging.debug('check csv files')
 csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'csv/{sys.argv[1]}')
 if not os.path.exists(csv_dir):
     print('指定のディレクトリが存在しません')
@@ -114,6 +124,7 @@ for row in campaign_csv_reader:
     break
 
 # 広告マネージャーを開く
+logging.debug('open chrome')
 driver.get('https://business.facebook.com/adsmanager/manage/')
 time.sleep(5)
 
