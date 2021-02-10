@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import platform
 import sys
 import time
 import csv
@@ -74,11 +75,15 @@ def clear_input(driver, class_name):
 
 
 options = webdriver.ChromeOptions()
-options.add_argument('--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/')
 
-# driver settings
-driver = webdriver.Chrome(options=options)
-# driver.implicitly_wait(3)
+user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
+if platform.system() == 'Windows':
+    user_data_path = 'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    options.add_argument(user_data_path)
+    driver = webdriver.Chrome('./driver/chromedriver-85.exe', options=options)
+else:
+    options.add_argument(user_data_path)
+    driver = webdriver.Chrome(options=options)
 
 # 引数
 csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'csv/{sys.argv[1]}')
@@ -201,21 +206,25 @@ for row in creative_csv_reader:
 
     driver \
         .find_element_by_xpath(
-        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[1]/div/div/div[1]').click() #.find_element_by_partial_link_text(
+        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[1]/div/div/div[1]').click()  # .find_element_by_partial_link_text(
 
     print('click image')
     time.sleep(WAIT_TIME)
 
     # 次へ
-    driver.find_element_by_xpath('/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div').click()
+    driver.find_element_by_xpath(
+        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div').click()
 
     time.sleep(WAIT_TIME)
 
     # 完了
-    driver.find_element_by_xpath('/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div').click()
+    driver.find_element_by_xpath(
+        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div').click()
 
     # メインテキスト
-    driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[4]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div/div/div/span').send_keys('メインテキスト')
+    driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[4]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div/div/div/span').send_keys(
+        'メインテキスト')
     print('テキスト入力完了')
 
     while True:
