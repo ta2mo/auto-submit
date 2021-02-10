@@ -39,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: submit.exe
-          path: ./dist/submit.exe
+          path: D:\a\auto-submit\auto-submit\ad-manager\dist\submit.exe
