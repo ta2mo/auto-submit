@@ -34,4 +34,9 @@ jobs:
 
       - name: packaging
         run: pyinstaller submit.py --onefile
-        
+
+      - name: archive exe file
+        uses: actions/upload-artifact@v2
+        with:
+          name: submit.exe
+          path: ./dist/submit.exe
