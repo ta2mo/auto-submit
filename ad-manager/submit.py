@@ -96,15 +96,9 @@ else:
 
 # 引数
 logging.debug('check csv files')
-csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'csv/{sys.argv[1]}')
+csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'csv')
 if not os.path.exists(csv_dir):
-    print('指定のディレクトリが存在しません')
-    driver.quit()
-    sys.exit(1)
-
-creative_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/creative.csv')
-if not os.path.exists(creative_csv_path):
-    print('クリエイティブ設定のCSVファイルが存在しません')
+    logging.error('指定のディレクトリが存在しません')
     driver.quit()
     sys.exit(1)
 
@@ -114,11 +108,27 @@ if not os.path.exists(campaign_csv_path):
     driver.quit()
     sys.exit(1)
 
-creative_csv_file = open(creative_csv_path, 'r')
-creative_csv_reader = csv.DictReader(creative_csv_file)
+adset_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/adset.csv')
+if not os.path.exists(adset_csv_path):
+    print('広告セット設定のCSVファイルが存在しません')
+    driver.quit()
+    sys.exit(1)
+
+creative_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/creative.csv')
+if not os.path.exists(creative_csv_path):
+    logging.error('クリエイティブ設定のCSVファイルが存在しません')
+    driver.quit()
+    sys.exit(1)
 
 campaign_csv_file = open(campaign_csv_path, 'r')
 campaign_csv_reader = csv.DictReader(campaign_csv_file)
+
+adset_csv_file = open(adset_csv_path, "r")
+adset_csv_reader = csv.DictReader(adset_csv_file)
+
+creative_csv_file = open(creative_csv_path, 'r')
+creative_csv_reader = csv.DictReader(creative_csv_file)
+
 for row in campaign_csv_reader:
     campaign_settings = row
     break
@@ -138,7 +148,7 @@ click_div_by_class_name(driver, 'g1fckbup dfy4e4am h3y5hp2p sdgvddc7 b8b10xji ok
                                 'm33fj6rl wy1fu5n8 chuaj5k6 hkz453cq dkjikr3h ay1kswi3 lcvupfea jq4kb4ie ft7osd3y')
 
 # 認知アップ選択
-click_element_by_id(driver, 'BRAND_AWARENESS')
+click_element_by_id(driver, 'CONVERSIONS')
 
 # 次へ選択
 click_button_by_class_name(driver, '_271k _271m _1qjd layerConfirm _7tvm _7tv3 _7tv4')
