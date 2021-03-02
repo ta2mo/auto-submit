@@ -4,6 +4,9 @@ import os
 import platform
 import sys
 import time
+
+from selenium.webdriver.support import expected_conditions
+
 import csv
 
 from selenium import webdriver
@@ -62,6 +65,24 @@ def input_element_by_class_name(driver, class_name, value):
         take_display_screenshot(driver)
 
 
+def input_element_by_id(driver, id, value):
+    try:
+        driver.find_element_by_xpath(f'//input[@id="{id}"]').send_keys(value)
+        time.sleep(WAIT_TIME)
+    except NoSuchElementException:
+        logging.error(f'not found class_name={id}')
+        take_display_screenshot(driver)
+
+
+def input_element_by_xpath(driver, xpath, value):
+    try:
+        driver.find_element_by_xpath(xpath).send_keys(value)
+        time.sleep(WAIT_TIME)
+    except NoSuchElementException:
+        logging.error(f'not found xpath={xpath}')
+        take_display_screenshot(driver)
+
+
 def clear_input(driver, class_name):
     try:
         while True:
@@ -73,29 +94,54 @@ def clear_input(driver, class_name):
         logging.error(f'not found class_name={class_name}')
         take_display_screenshot(driver)
 
-logging.basicConfig(filename='./debug.log', level=logging.DEBUG)
+
+def clear_input_by_id(driver, id):
+    try:
+        while True:
+            driver.find_element_by_xpath(f'//input[@id="{id}"]').send_keys(Keys.BACK_SPACE)
+            input_text = driver.find_element_by_xpath(f'//input[@id="{id}"]').get_attribute('value')
+            if input_text == '':
+                break
+    except NoSuchElementException:
+        logging.error(f'not found class_name={id}')
+        take_display_screenshot(driver)
+
+
+def clear_input_by_xpath(driver, xpath):
+    try:
+        while True:
+            driver.find_element_by_xpath(xpath).send_keys(Keys.BACK_SPACE)
+            input_text = driver.find_element_by_xpath(xpath).get_attribute('value')
+            if input_text == '':
+                break
+    except NoSuchElementException:
+        logging.error(f'not found xpath={xpath}')
+        take_display_screenshot(driver)
+
+
+logging.basicConfig(filename='./debug.log', level=logging.INFO)
 
 options = webdriver.ChromeOptions()
 
 user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
 if platform.system() == 'Windows':
-    logging.debug('exec on windows')
+    logging.info('exec on windows')
     user_data_path = 'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     options.add_argument(user_data_path)
     try:
         driver = webdriver.Chrome(options=options, executable_path='.\\driver\\chromedriver-85.exe')
     except Exception as e:
-        logging.debug(f'get driver failed. {e}')
+        logging.error(f'get driver failed. {e}')
 else:
-    logging.debug('exec on other os')
+    logging.info('exec on other os')
     options.add_argument(user_data_path)
     try:
         driver = webdriver.Chrome(options=options)
     except Exception as e:
-        logging.debug(f'get driver failed. {e}')
+        logging.error(f'get driver failed. {e}')
 
 # 引数
-logging.debug('check csv files')
+logging.info('check csv files')
 csv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'csv')
 if not os.path.exists(csv_dir):
     logging.error('指定のディレクトリが存在しません')
@@ -104,13 +150,7 @@ if not os.path.exists(csv_dir):
 
 campaign_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/campaign.csv')
 if not os.path.exists(campaign_csv_path):
-    print('キャンペーン設定のCSVファイルが存在しません')
-    driver.quit()
-    sys.exit(1)
-
-adset_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/adset.csv')
-if not os.path.exists(adset_csv_path):
-    print('広告セット設定のCSVファイルが存在しません')
+    logging.error('キャンペーン設定のCSVファイルが存在しません')
     driver.quit()
     sys.exit(1)
 
@@ -123,9 +163,6 @@ if not os.path.exists(creative_csv_path):
 campaign_csv_file = open(campaign_csv_path, 'r')
 campaign_csv_reader = csv.DictReader(campaign_csv_file)
 
-adset_csv_file = open(adset_csv_path, "r")
-adset_csv_reader = csv.DictReader(adset_csv_file)
-
 creative_csv_file = open(creative_csv_path, 'r')
 creative_csv_reader = csv.DictReader(creative_csv_file)
 
@@ -134,7 +171,6 @@ for row in campaign_csv_reader:
     break
 
 # 広告マネージャーを開く
-logging.debug('open chrome')
 driver.get('https://business.facebook.com/adsmanager/manage/')
 time.sleep(5)
 
@@ -179,6 +215,58 @@ time.sleep(WAIT_TIME)
 clear_input(driver, '_58al')
 input_element_by_class_name(driver, '_58al', value=campaign_settings['広告セット名'])
 
+if '予算' in campaign_settings:
+    budget_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[' \
+                   '2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[5]/div/div/div/div[' \
+                   '2]/div/div/div/div[1]/div/div[2]/div/div[1]/div[3]/div/span/input '
+    driver.find_element_by_xpath(budget_xpath).click()
+    clear_input_by_xpath(driver, budget_xpath)
+    input_element_by_xpath(driver, budget_xpath, value=campaign_settings['予算'])
+
+if '開始日時' in campaign_settings:
+    logging.info('開始日時')
+    clear_input_by_id(driver, 'js_12i')
+    input_element_by_id(driver, 'js_12i', value=campaign_settings['開始日時'])
+
+if '年齢下限' in campaign_settings and '年齢上限' in campaign_settings:
+    logging.info('年齢入力')
+    try:
+        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
+    except:
+        logging.info("年齢選択テキストがありませんでした")
+        take_display_screenshot(driver)
+
+    # 年齢下限
+    if '年齢下限' in campaign_settings:
+        min_age_target_li = int(campaign_settings['年齢下限']) - 12
+        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div').click()
+        driver.find_element_by_xpath(f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
+
+    # 年齢上限
+    if '年齢上限' in campaign_settings:
+        min_age_target_li = int(campaign_settings['年齢上限']) - 12
+        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[4]').click()
+        driver.find_element_by_xpath(f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
+
+if '性別' in campaign_settings:
+    logging.info('性別')
+    try:
+        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
+    except:
+        logging.info("性別選択テキストがありませんでした")
+        take_display_screenshot(driver)
+
+    gender = campaign_settings['性別']
+    if gender == '男性':
+        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
+    elif gender == '女性':
+        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
+    else: # すべて
+        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div[1]/div/input').click()
+
+    expected_conditions.element_selection_state_to_be(checkbox, True)
+
+
 while True:
     try:
         msg = driver.find_element_by_xpath(f'//div[@class="_3b62"]/span').text
@@ -203,7 +291,7 @@ time.sleep(WAIT_TIME)
 
 # クリエイティブ
 driver.find_element_by_xpath(
-    '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[3]/div/span[1]/div/button/div/div').click()
+    '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button/div/div').click()
 time.sleep(WAIT_TIME)
 
 for row in creative_csv_reader:
@@ -215,21 +303,20 @@ for row in creative_csv_reader:
     ).click()
     time.sleep(WAIT_TIME)
 
-    image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/image/{file_name}')
-    print(image_file)
+    image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'image/{file_name}')
     driver.find_element_by_xpath(
         '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[1]/div/div[1]/div/div/input'
     ).send_keys(image_file)
 
     time.sleep(10)
 
-    print('upload complete')
+    logging.info(f'upload complete {file_name}')
 
     driver \
         .find_element_by_xpath(
         '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[1]/div/div/div[1]').click()  # .find_element_by_partial_link_text(
 
-    print('click image')
+    logging.info('click image')
     time.sleep(WAIT_TIME)
 
     # 次へ
@@ -242,11 +329,26 @@ for row in creative_csv_reader:
     driver.find_element_by_xpath(
         '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div').click()
 
+    time.sleep(WAIT_TIME)
+
     # メインテキスト
-    driver.find_element_by_xpath(
-        '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[4]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div/div/div/span').send_keys(
-        'メインテキスト')
-    print('テキスト入力完了')
+    main_text_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]'
+    main_text_element = driver.find_element_by_xpath(main_text_xpath)
+    main_text_element.click()
+    main_text_value = row['メインテキスト']
+    driver.execute_script(f'var ele=arguments[0]; ele.innerHTML = "{main_text_value}";', main_text_element)
+    logging.info('テキスト入力完了')
+
+    # 見出し
+    if '見出し' in row:
+        title_value = row['見出し']
+        title_element = driver.find_element_by_xpath()
+
+    # 説明
+    if '' in row:
+        description_xpath = ''
+        description_value = row['説明']
+        description_element = driver.find_element_by_xpath('')
 
     while True:
         try:
@@ -260,12 +362,11 @@ for row in creative_csv_reader:
 
         time.sleep(3)
 
-    print('保存完了')
+    logging.info('保存完了')
 
 # --- ---
 
 time.sleep(WAIT_TIME)
-time.sleep(500)
 
 # 終了
 driver.quit()
