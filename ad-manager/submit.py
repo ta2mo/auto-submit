@@ -162,10 +162,10 @@ if not os.path.exists(creative_csv_path):
     driver.quit()
     sys.exit(1)
 
-campaign_csv_file = open(campaign_csv_path, 'r')
+campaign_csv_file = open(campaign_csv_path, 'r', encoding='utf_8')
 campaign_csv_reader = csv.DictReader(campaign_csv_file)
 
-creative_csv_file = open(creative_csv_path, 'r')
+creative_csv_file = open(creative_csv_path, 'r', encoding='utf_8')
 creative_csv_reader = csv.DictReader(creative_csv_file)
 
 for row in campaign_csv_reader:
