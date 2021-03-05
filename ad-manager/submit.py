@@ -23,10 +23,12 @@ def take_display_screenshot(driver):
     driver.save_screenshot(filename=filename)
 
 
-def take_element_screenshot():
+def take_element_screenshot(element):
     now = datetime.date.today()
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
-    driver.save_screenshot(filename=filename)
+    png = element.screenshot_as_png
+    with open(filename, 'wb') as f:
+        f.write(png)
 
 
 def click_element_by_id(driver, id):
@@ -266,6 +268,63 @@ if '性別' in campaign_settings:
 
     expected_conditions.element_selection_state_to_be(checkbox, True)
 
+placement_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[1]/div/div/div[2]'
+fb_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[3]/div/div/div[2]/ul/table[1]/tbody/tr/td[1]/li/div/div/div/input'
+ig_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[3]/div/div/div[2]/ul/table[1]/tbody/tr/td[2]/li/div/div/div/input'
+an_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[3]/div/div/div[2]/ul/table[2]/tbody/tr/td[1]/li/div/div/div/input'
+ms_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[3]/div/div/div[2]/ul/table[2]/tbody/tr/td[2]/li/div/div/div/input'
+
+stories_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[2]/ul/li/div[1]/div[3]/div/div/div/input'
+instream_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[3]/ul/li/div[1]/div[3]/div/div/div/input'
+search_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[4]/ul/li/div[1]/div[3]/div/div/div/input'
+inpost_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[6]/ul/li/div[1]/div[3]/div/div/div/input'
+
+if 'FBFD' in campaign_settings and campaign_settings['FBFD']:
+    logging.info('FBFD')
+    driver.find_element_by_xpath(placement_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(ig_input_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(an_input_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(ms_input_xpath).click()
+    time.sleep(WAIT_TIME)
+
+    marketplace_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[1]/ul/div[3]/li/div/div[3]/div/div/div/input'
+    driver.find_element_by_xpath(marketplace_check_xpath).click()
+
+    movie_feed_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[1]/ul/div[4]/li/div/div[3]/div/div/div/input'
+    driver.find_element_by_xpath(movie_feed_check_xpath).click()
+
+    right_placement_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[1]/ul/div[5]/li/div/div[3]/div/div/div/input'
+    driver.find_element_by_xpath(right_placement_check_xpath).click()
+    time.sleep(WAIT_TIME)
+
+    driver.find_element_by_xpath(stories_check_xpath).click()
+    driver.find_element_by_xpath(stories_check_xpath).click()
+    driver.find_element_by_xpath(instream_check_xpath).click()
+    driver.find_element_by_xpath(search_check_xpath).click()
+    driver.find_element_by_xpath(inpost_check_xpath).click()
+    time.sleep(WAIT_TIME)
+
+if 'IGFD' in campaign_settings and campaign_settings['IGFD']:
+    logging.info('IGFD')
+    driver.find_element_by_xpath(placement_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(ig_input_xpath).click()
+    driver.find_element_by_xpath(an_input_xpath).click()
+    driver.find_element_by_xpath(ms_input_xpath).click()
+    time.sleep(WAIT_TIME)
+
+
+if 'ST' in campaign_settings and campaign_settings['ST']:
+    logging.info('ST')
+    driver.find_element_by_xpath(placement_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(ig_input_xpath).click()
+    driver.find_element_by_xpath(an_input_xpath).click()
+    driver.find_element_by_xpath(ms_input_xpath).click()
+    time.sleep(WAIT_TIME)
 
 while True:
     try:
@@ -294,27 +353,44 @@ driver.find_element_by_xpath(
     '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button/div/div').click()
 time.sleep(WAIT_TIME)
 
-for row in creative_csv_reader:
+for i, row in enumerate(creative_csv_reader):
+    if i != 0:
+        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[2]/div/div/div[1]/div/div/div[3]/div/div/div/div[2]/div[2]').click()
+        time.sleep(5)
+        quick_copy_xpath = '/html/body/div[1]/div/div/div/div[2]/div/div/div/div/ul/li[2]/div/div'
+        driver.find_element_by_xpath(quick_copy_xpath).click()
+        time.sleep(WAIT_TIME)
+
     file_name = row['ファイル名']
     main_text = row['メインテキスト']
 
-    driver.find_element_by_xpath(
-        '/html/body/div[1]/div/div/div/div[3]/div/div/div/div/div/div[1]/div/div/ul/li[1]/div/div/div[2]'
-    ).click()
-    time.sleep(WAIT_TIME)
 
-    image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'image/{file_name}')
-    driver.find_element_by_xpath(
-        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[1]/div/div[1]/div/div/input'
-    ).send_keys(image_file)
+    if i == 0:
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[3]/div/div/div/div/div/div[1]/div/div/ul/li[1]/div/div/div[2]'
+        ).click()
+        time.sleep(WAIT_TIME)
 
-    time.sleep(10)
+        image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'image/{file_name}')
+        driver.find_element_by_xpath(
+            '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[1]/div/div[1]/div/div/input'
+        ).send_keys(image_file)
+
+        time.sleep(10)
+    else:
+        media_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div[2]/div/div/div[2]/ul/div/div/div'
+        driver.find_element_by_xpath(media_button_xpath).click()
+        time.sleep(WAIT_TIME)
+
+        media_edit_button_xpath = '/html/body/div[6]/div[1]/div[1]/div/div/div[1]/div[2]/div/div[1]/div/div/div/div/div/div'
+        driver.find_element_by_xpath(media_edit_button_xpath).click()
+        time.sleep(10)
 
     logging.info(f'upload complete {file_name}')
 
     driver \
         .find_element_by_xpath(
-        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[1]/div/div/div[1]').click()  # .find_element_by_partial_link_text(
+        '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[1]/div/div/div[1]').click()
 
     logging.info('click image')
     time.sleep(WAIT_TIME)
@@ -332,23 +408,32 @@ for row in creative_csv_reader:
     time.sleep(WAIT_TIME)
 
     # メインテキスト
-    main_text_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]'
-    main_text_element = driver.find_element_by_xpath(main_text_xpath)
-    main_text_element.click()
-    main_text_value = row['メインテキスト']
-    driver.execute_script(f'var ele=arguments[0]; ele.innerHTML = "{main_text_value}";', main_text_element)
-    logging.info('テキスト入力完了')
+    # main_text_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]'
+    # main_text_element = driver.find_element_by_xpath(main_text_xpath)
+    # main_text_element.click()
+    # main_text_value = row['メインテキスト']
+
+    # driver.execute_script(f'var ele=arguments[0]; ele.innerHTML = "{main_text_value}";', main_text_element)
+    # logging.info('テキスト入力完了')
 
     # 見出し
     if '見出し' in row:
+        title_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/textarea'
         title_value = row['見出し']
-        title_element = driver.find_element_by_xpath()
+        title_element = driver.find_element_by_xpath(title_xpath).send_keys(title_value)
 
     # 説明
-    if '' in row:
-        description_xpath = ''
+    if '説明' in row:
+        description_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[3]/div/div[1]/div[1]/div[2]/div/div[1]/textarea'
         description_value = row['説明']
-        description_element = driver.find_element_by_xpath('')
+        description_element = driver.find_element_by_xpath(description_xpath).send_keys(description_value)
+
+    # ウェブサイトのURL
+    if 'ウェブサイトのURL' in row:
+        url_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[5]/div/div/div[1]/div[2]/div/div/div/div[2]/div/div/div/div[1]/textarea'
+        url_value = row['ウェブサイトのURL']
+        url_element = driver.find_element_by_xpath(url_xpath).send_keys(url_value)
+
 
     while True:
         try:
@@ -369,4 +454,4 @@ for row in creative_csv_reader:
 time.sleep(WAIT_TIME)
 
 # 終了
-driver.quit()
+# driver.quit()
