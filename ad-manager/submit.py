@@ -131,7 +131,7 @@ if platform.system() == 'Windows':
     # user_data_path = 'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
     # options.add_argument(user_data_path)
     try:
-        driver = webdriver.Chrome(options=options, executable_path='.\\driver\\chromedriver-85.exe')
+        driver = webdriver.Chrome( executable_path='.\\driver\\chromedriver-85.exe')
     except Exception as e:
         logging.error(f'get driver failed. {e}')
 else:
