@@ -218,6 +218,7 @@ driver.find_element_by_xpath(create_button_xpath).click()
 
 # 認知アップ選択
 click_element_by_id(driver, 'CONVERSIONS')
+time.sleep(WAIT_TIME)
 
 # 次へ選択
 click_button_by_class_name(driver, '_271k _271m _1qjd layerConfirm _7tvm _7tv3 _7tv4')
