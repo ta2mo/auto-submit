@@ -224,6 +224,8 @@ time.sleep(WAIT_TIME)
 click_button_by_class_name(driver, '_271k _271m _1qjd layerConfirm _7tvm _7tv3 _7tv4')
 click_button_by_class_name(driver, '_271k _271m _1qjd _7tvm _7tv3 _7tv4')
 
+time.sleep(WAIT_TIME)
+
 # キャンペーン名入力
 clear_input(driver, '_58al')
 input_element_by_class_name(driver, '_58al', value=campaign_settings['キャンペーン名'])
