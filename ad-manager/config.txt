@@ -2,7 +2,7 @@
 wait_time = 10
 
 # check chrome://version
-windows_profile_dir = ''
+windows_profile_dir = 'C:\Users\User\Documents\Profile'
 
 # loglevel list
 #   CRITICAL = 50
