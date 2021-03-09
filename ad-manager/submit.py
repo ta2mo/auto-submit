@@ -148,6 +148,7 @@ user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/C
 if platform.system() == 'Windows':
     logging.info('exec on windows')
     user_data_path = config['DEFAULT']['windows_profile_dir']
+    logging.debug(f'user_data_path={user_data_path}')
     options.add_argument(user_data_path)
     try:
         driver = webdriver.Chrome( executable_path='.\\driver\\chromedriver-89.exe')
