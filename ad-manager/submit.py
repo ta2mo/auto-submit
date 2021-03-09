@@ -147,7 +147,7 @@ options = webdriver.ChromeOptions()
 user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
-    user_data_path = f'--user-data-dir={config["DEFAULT"]["windows_profile_dir"]}'
+    user_data_path = f'--user-data-dir="{config["DEFAULT"]["windows_profile_dir"]}"'
     logging.debug(f'user_data_path={user_data_path}')
     options.add_argument(user_data_path)
     try:
