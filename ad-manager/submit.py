@@ -25,15 +25,15 @@ if 'wait_time' in config['DEFAULT']:
 else:
     WAIT_TIME = 3
 
-if 'log_level' in config['DEFAULT']:
-    LOG_LEVEL = config['DEFAULT']['log_level']
-else:
-    LOG_LEVEL = logging.DEBUG
+# if 'log_level' in config['DEFAULT']:
+#     LOG_LEVEL = config['DEFAULT']['log_level']
+# else:
+#     LOG_LEVEL = logging.DEBUG
 
-logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(message)s', level=LOG_LEVEL)
+logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 logging.debug('start')
 logging.debug(f'WAIT_TIME={WAIT_TIME}')
-logging.debug(f'LOG_LEVEL={LOG_LEVEL}')
+# logging.debug(f'LOG_LEVEL={LOG_LEVEL}')
 
 # -------------------------------------------------------------------------------------------------
 # functions
@@ -207,12 +207,14 @@ time.sleep(5)
 # キャンペーン
 # -------------------------------------------------------------------------------------------------
 # 作成ボタン
-click_div_by_class_name(driver, 'g1fckbup dfy4e4am h3y5hp2p sdgvddc7 b8b10xji okyvhjd0 rpcniqb6 jytk9n0j ojz0a1ch '
-                                'avm085bc mtc4pi7f jza0iyw7 njc9t6cs qhe9tvzt spzutpn9 puibpoiz svsqgeze if5qj5rh '
-                                'har4n1i8 diwav8v6 nlmdo9b9 h706y6tg qbdq5e12 j90q0chr rbzcxh88 h8e39ki1 rgsc13q7 '
-                                'a53abz89 llt6l64p pt6x234n bmtosu2b ndrgvajj s7wjoji2 jztyeye0 d5rc5kzv jdcxz0ji '
-                                'frrweqq6 qnavoh4n b1hd98k5 c332bl9r f1dwqt7s rqkdmjxc tb4cuiq2 nmystfjm kojzg8i3 '
-                                'm33fj6rl wy1fu5n8 chuaj5k6 hkz453cq dkjikr3h ay1kswi3 lcvupfea jq4kb4ie ft7osd3y')
+# click_div_by_class_name(driver, 'g1fckbup dfy4e4am h3y5hp2p sdgvddc7 b8b10xji okyvhjd0 rpcniqb6 jytk9n0j ojz0a1ch '
+#                                 'avm085bc mtc4pi7f jza0iyw7 njc9t6cs qhe9tvzt spzutpn9 puibpoiz svsqgeze if5qj5rh '
+#                                 'har4n1i8 diwav8v6 nlmdo9b9 h706y6tg qbdq5e12 j90q0chr rbzcxh88 h8e39ki1 rgsc13q7 '
+#                                 'a53abz89 llt6l64p pt6x234n bmtosu2b ndrgvajj s7wjoji2 jztyeye0 d5rc5kzv jdcxz0ji '
+#                                 'frrweqq6 qnavoh4n b1hd98k5 c332bl9r f1dwqt7s rqkdmjxc tb4cuiq2 nmystfjm kojzg8i3 '
+#                                 'm33fj6rl wy1fu5n8 chuaj5k6 hkz453cq dkjikr3h ay1kswi3 lcvupfea jq4kb4ie ft7osd3y')
+create_button_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[3]/div[4]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]/div'
+driver.find_element_by_xpath(create_button_xpath).click()
 
 # 認知アップ選択
 click_element_by_id(driver, 'CONVERSIONS')
