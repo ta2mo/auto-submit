@@ -1,6 +1,8 @@
 [DEFAULT]
 wait_time = 10
-log_level = 20
+
+# check chrome://version
+windows_profile_dir = ''
 
 # loglevel list
 #   CRITICAL = 50
@@ -11,3 +13,4 @@ log_level = 20
 #   INFO = 20
 #   DEBUG = 10
 #   NOTSET = 0
+log_level = 20

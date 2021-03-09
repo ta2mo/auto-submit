@@ -147,6 +147,8 @@ options = webdriver.ChromeOptions()
 user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
+    user_data_path = config['DEFAULT']['windows_profile_dir']
+    options.add_argument(user_data_path)
     try:
         driver = webdriver.Chrome( executable_path='.\\driver\\chromedriver-89.exe')
     except Exception as e:
