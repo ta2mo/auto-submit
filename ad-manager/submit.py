@@ -22,7 +22,7 @@ config.read('config.ini')
 
 WAIT_TIME = 3
 if 'wait_time' in config:
-    WAIT_TIME = config['wait_time']
+    WAIT_TIME = config['default']['wait_time']
 
 # if 'log_level' in config:
 #     LOG_LEVEL = config['log_level']
@@ -148,8 +148,8 @@ user_data_dir = '--user-data-dir=/Users/nt/Library/Application Support/Google/Ch
 profile_directory = '--profile-directory="Profile 1'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
-    user_data_dir = f'--user-data-dir="{config["windows_profile_dir"]}"'
-    profile_directory = f'--profile-directory="{config["profile_directory"]}"'
+    user_data_dir = f'--user-data-dir="{config["default"]["windows_profile_dir"]}"'
+    profile_directory = f'--profile-directory="{config["default"]["profile_directory"]}"'
     options.add_argument(user_data_dir)
     options.add_argument(profile_directory)
     try:
