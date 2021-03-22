@@ -20,13 +20,12 @@ from selenium.webdriver.common.keys import Keys
 config = configparser.ConfigParser()
 config.read('config.txt')
 
-if 'wait_time' in config['DEFAULT']:
-    WAIT_TIME = config['DEFAULT']['wait_time']
-else:
-    WAIT_TIME = 3
+WAIT_TIME = 3
+if 'wait_time' in config:
+    WAIT_TIME = config['wait_time']
 
-# if 'log_level' in config['DEFAULT']:
-#     LOG_LEVEL = config['DEFAULT']['log_level']
+# if 'log_level' in config:
+#     LOG_LEVEL = config['log_level']
 # else:
 #     LOG_LEVEL = logging.DEBUG
 
@@ -34,6 +33,7 @@ logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(
 logging.debug('start')
 logging.debug(f'WAIT_TIME={WAIT_TIME}')
 # logging.debug(f'LOG_LEVEL={LOG_LEVEL}')
+
 
 # -------------------------------------------------------------------------------------------------
 # functions
@@ -144,20 +144,21 @@ def clear_input_by_xpath(driver, xpath):
 
 options = webdriver.ChromeOptions()
 
-user_data_path = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/Profile 1/'
+user_data_dir = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/'
+profile_directory = '--profile-directory="Profile 1'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
-    user_data_path = f'--user-data-dir="{config["DEFAULT"]["windows_profile_dir"]}"'
-    options.add_argument('--profile-directory=Default')
-    logging.debug(f'user_data_path={user_data_path}')
-    options.add_argument(user_data_path)
+    user_data_dir = f'--user-data-dir="{config["windows_profile_dir"]}"'
+    profile_directory = f'--profile-directory="{config["profile_directory"]}"'
+    options.add_argument(user_data_dir)
+    options.add_argument(profile_directory)
     try:
         driver = webdriver.Chrome(options=options, executable_path='.\\driver\\chromedriver-89.exe')
     except Exception as e:
         logging.error(f'get driver failed. {e}')
 else:
     logging.info('exec on other os')
-    options.add_argument(user_data_path)
+    options.add_argument(user_data_dir)
     try:
         driver = webdriver.Chrome(options=options)
     except Exception as e:
@@ -217,6 +218,7 @@ time.sleep(5)
 #                                 'm33fj6rl wy1fu5n8 chuaj5k6 hkz453cq dkjikr3h ay1kswi3 lcvupfea jq4kb4ie ft7osd3y')
 create_button_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[3]/div[4]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]/div'
 driver.find_element_by_xpath(create_button_xpath).click()
+time.sleep(WAIT_TIME)
 
 # 認知アップ選択
 click_element_by_id(driver, 'CONVERSIONS')
@@ -338,6 +340,13 @@ instream_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/
 search_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[4]/ul/li/div[1]/div[3]/div/div/div/input'
 inpost_check_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[6]/ul/li/div[1]/div[3]/div/div/div/input'
 
+ig_st_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[2]/ul/div[2]/li/div/div[3]/div/div/div/input'
+ig_feed_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[1]/ul/div[2]/li/div/div[3]/div/div/div/input'
+ig_find_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[1]/ul/div[6]/li/div/div[3]/div/div/div/input'
+
+fb_st_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[2]/ul/div[1]/li/div/div[3]/div/div/div/input'
+ms_st_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[2]/div[6]/div/div[1]/ul/div/li[2]/ul/div[3]/li/div/div[3]/div/div/div/input'
+
 if 'FBFD' in campaign_settings and campaign_settings['FBFD']:
     logging.info('FBFD')
     driver.find_element_by_xpath(ig_input_xpath).click()
@@ -363,20 +372,29 @@ if 'FBFD' in campaign_settings and campaign_settings['FBFD']:
 
 if 'IGFD' in campaign_settings and campaign_settings['IGFD']:
     logging.info('IGFD')
-    driver.find_element_by_xpath(placement_xpath).click()
+    driver.find_element_by_xpath(placement_xpath).click(fb_input_xpath)
     time.sleep(WAIT_TIME)
-    driver.find_element_by_xpath(ig_input_xpath).click()
-    driver.find_element_by_xpath(an_input_xpath).click()
-    driver.find_element_by_xpath(ms_input_xpath).click()
+    driver.find_element_by_xpath(ig_input_xpath).click(an_input_xpath)
+    driver.find_element_by_xpath(an_input_xpath).click(ms_input_xpath)
     time.sleep(WAIT_TIME)
+
+    driver.find_element_by_xpath(ig_st_xpath).click()
 
 if 'ST' in campaign_settings and campaign_settings['ST']:
     logging.info('ST')
-    driver.find_element_by_xpath(placement_xpath).click()
+    driver.find_element_by_xpath(placement_xpath).click(fb_input_xpath)
     time.sleep(WAIT_TIME)
-    driver.find_element_by_xpath(ig_input_xpath).click()
-    driver.find_element_by_xpath(an_input_xpath).click()
-    driver.find_element_by_xpath(ms_input_xpath).click()
+    driver.find_element_by_xpath(ig_input_xpath).click(an_input_xpath)
+    driver.find_element_by_xpath(an_input_xpath).click(ms_input_xpath)
+    time.sleep(WAIT_TIME)
+
+    driver.find_element_by_xpath(ig_feed_xpath).click()
+    driver.find_element_by_xpath(ig_find_xpath).click()
+    time.sleep(WAIT_TIME)
+
+    driver.find_element_by_xpath(fb_st_xpath).click()
+    time.sleep(WAIT_TIME)
+    driver.find_element_by_xpath(ms_st_xpath).click()
     time.sleep(WAIT_TIME)
 
 # 最適化と配信
