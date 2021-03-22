@@ -18,7 +18,7 @@ from selenium.webdriver.common.keys import Keys
 # config
 # -------------------------------------------------------------------------------------------------
 config = configparser.ConfigParser()
-config.read('config.txt')
+config.read('config.ini')
 
 WAIT_TIME = 3
 if 'wait_time' in config:
