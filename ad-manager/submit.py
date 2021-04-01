@@ -149,7 +149,7 @@ profile_directory = '--profile-directory="Profile 1'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
     user_data_dir = f'--user-data-dir="{config["DEFAULT"]["windows_profile_dir"]}"'
-    # profile_directory = f'--profile-directory="{config["DEFAULT"]["profile_directory"]}"'
+    profile_directory = f'--profile-directory="{config["DEFAULT"]["profile_directory"]}"'
     options.add_argument(user_data_dir)
     options.add_argument(profile_directory)
     try:
