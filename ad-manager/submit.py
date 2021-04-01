@@ -152,6 +152,7 @@ if platform.system() == 'Windows':
     profile_directory = f'--profile-directory="{config["DEFAULT"]["profile_directory"]}"'
     options.add_argument(user_data_dir)
     options.add_argument(profile_directory)
+    options.add_argument("--no-sandbox")
     try:
         driver = webdriver.Chrome(options=options, executable_path='.\\driver\\chromedriver-89.exe')
     except Exception as e:
