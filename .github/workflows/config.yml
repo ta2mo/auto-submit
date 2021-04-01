@@ -34,7 +34,7 @@ jobs:
 
       - name: packaging
         run: |
-          pyinstaller submit.py --onefile --add-binary ".\driver\chromedriver-85.exe;.\driver"
+          pyinstaller --onefile submit.py
 
       - name: archive exe file
         uses: actions/upload-artifact@v2
