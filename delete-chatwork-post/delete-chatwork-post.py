@@ -48,9 +48,9 @@ while True:
         break
 
     # 一覧から選択
-    message_id = driver.find_element_by_xpath('/html/body/div[3]/div[3]/div[4]/div[3]/div/div[3]/div/div[2]/div[1]').get_attribute("id").replace('_search', '')
-    print(f'message_id={message_id}')
-    actions.move_to_element(driver.find_element_by_xpath('/html/body/div[3]/div[3]/div[4]/div[3]/div/div[3]/div/div[2]/div[1]/div[1]/div[2]')).perform()
+    search_id = driver.find_element_by_xpath('/html/body/div[3]/div[3]/div[4]/div[3]/div/div[3]/div/div[2]/div[1]').get_attribute("id")
+    message_id = search_id.replace('_search', '')
+    actions.move_to_element(driver.find_element_by_id(search_id)).perform()
     driver.find_element_by_xpath('/html/body/div[3]/div[3]/div[4]/div[3]/div/div[3]/div/div[2]/div[1]/div[3]/ul/li[1]/span').click()
 
     time.sleep(WAIT_TIME)
