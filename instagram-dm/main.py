@@ -59,6 +59,9 @@ for row in login_csv_reader:
 
 logging.info("complete check csv")
 
+# ヘッダー
+header_send_result = "送信済み"
+
 # -------------------------------------------------------------------------------------------------
 # functions
 # -------------------------------------------------------------------------------------------------
@@ -107,8 +110,14 @@ try:
 except:
     logging.debug("notify popup not found.")
 
+result_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/result.csv')
+result_csv_file = open(result_csv_path, 'w', encoding='utf_8')
+result_csv_writer = csv.DictWriter(result_csv_file, ['username', '文面', '送信済み'], quotechar='"', quoting=csv.QUOTE_ALL)
+
+result_list = []
+
 for dm_setting in dm_csv_reader:
-    if dm_setting['送信済み']:
+    if dm_setting[header_send_result]:
         continue
 
     driver.get("https://www.instagram.com/direct/inbox/")
@@ -125,21 +134,30 @@ for dm_setting in dm_csv_reader:
         logging.debug("notify popup not found.")
         # time.sleep(WAIT_TIME)
 
-    driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[1]/div[1]/div/div[3]/button").click()
-    driver.find_element_by_name("queryBox").send_keys(dm_setting["username"])
+    try:
+        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[1]/div[1]/div/div[3]/button").click()
+        driver.find_element_by_name("queryBox").send_keys(dm_setting["username"])
 
-    time.sleep(WAIT_TIME)
+        time.sleep(WAIT_TIME)
 
-    # 先頭のユーザーをクリック
-    driver.find_element_by_xpath("/html/body/div[5]/div/div/div[2]/div[2]/div[1]/div").click()
+        # 先頭のユーザーをクリック
+        driver.find_element_by_xpath("/html/body/div[5]/div/div/div[2]/div[2]/div[1]/div").click()
 
-    # 次へをクリック
-    driver.find_element_by_xpath("/html/body/div[5]/div/div/div[1]/div/div[2]/div/button").click()
-    time.sleep(WAIT_TIME)
+        # 次へをクリック
+        driver.find_element_by_xpath("/html/body/div[5]/div/div/div[1]/div/div[2]/div/button").click()
+        time.sleep(WAIT_TIME)
 
-    # テキスト入力
-    text = f"{dm_setting['username']} 様" + dm_setting["文面"].format(name=login_setting["name"], send_to=dm_setting["username"])
-    driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea").send_keys(text)
+        # テキスト入力
+        text = dm_setting["文面"]
+        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea").send_keys(text)
 
-    # 送信
-    # driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button").click()
+        # 送信
+        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button").click()
+    except:
+        continue
+
+    dm_setting.update({header_send_result: "済"})
+    result_list.append(dm_setting)
+
+result_csv_writer.writeheader()
+result_csv_writer.writerows(result_list)
