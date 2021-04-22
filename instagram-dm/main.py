@@ -112,7 +112,7 @@ except:
 
 result_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/result.csv')
 result_csv_file = open(result_csv_path, 'w', encoding='utf_8')
-result_csv_writer = csv.DictWriter(result_csv_file, ['username', '文面', '送信済み'], quotechar='"', quoting=csv.QUOTE_ALL)
+result_csv_writer = csv.DictWriter(result_csv_file, ['name','username', 'メッセージテンプレート', '送信済み'], quotechar='"', quoting=csv.QUOTE_ALL)
 
 result_list = []
 
@@ -148,7 +148,7 @@ for dm_setting in dm_csv_reader:
         time.sleep(WAIT_TIME)
 
         # テキスト入力
-        text = dm_setting["文面"]
+        text = dm_setting["メッセージテンプレート"].format(name=dm_setting["name"])
         driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea").send_keys(text)
 
         # 送信
