@@ -62,6 +62,9 @@ HEADER_USERNAME = 'username（半角英数と_のみのやつ）'
 HEADER_NAME = '名前（メッセージ内の宛名の置き換え）'
 HEADER_MESSAGE = 'メッセージテンプレート'
 
+HEADER_NO = "No"
+HEADER_INSTAGRAM_URL = "インスタURL"
+
 # -------------------------------------------------------------------------------------------------
 # functions
 # -------------------------------------------------------------------------------------------------
@@ -111,7 +114,9 @@ except:
 
 result_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/result.csv')
 result_csv_file = open(result_csv_path, 'w', encoding='utf_8')
-result_csv_writer = csv.DictWriter(result_csv_file, [HEADER_NAME, HEADER_USERNAME, HEADER_MESSAGE, HEADER_SEND_RESULT], quotechar='"',
+result_csv_writer = csv.DictWriter(result_csv_file,
+                                   [HEADER_NO, HEADER_NAME, HEADER_INSTAGRAM_URL, HEADER_USERNAME, HEADER_MESSAGE,
+                                    HEADER_SEND_RESULT], quotechar='"',
                                    quoting=csv.QUOTE_ALL)
 
 result_list = []
