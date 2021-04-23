@@ -4,6 +4,8 @@ import os
 import platform
 import sys
 import time
+import datetime
+
 import csv
 
 from selenium import webdriver
@@ -162,6 +164,11 @@ for dm_setting in dm_csv_reader:
         # 送信
         driver.find_element_by_xpath(
             "/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button").click()
+
+        # スクリーンショット
+        now = datetime.date.today()
+        filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
+        driver.save_screenshot(filename=filename)
     except Exception as e:
         print(e)
         continue

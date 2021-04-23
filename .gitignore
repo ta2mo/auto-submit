@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /instagram-dm.zip
 /instagram-dm/csv/result.csv
+/instagram-dm/ss/*.png
