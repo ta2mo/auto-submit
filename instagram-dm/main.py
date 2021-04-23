@@ -1,17 +1,12 @@
 import configparser
-import datetime
 import logging
 import os
 import platform
 import sys
 import time
-
-from selenium.webdriver.support import expected_conditions
-
 import csv
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 # -------------------------------------------------------------------------------------------------
@@ -60,7 +55,10 @@ for row in login_csv_reader:
 logging.info("complete check csv")
 
 # ヘッダー
-header_send_result = "送信済み"
+HEADER_SEND_RESULT = "送信済み"
+HEADER_USERNAME = 'username（半角英数と_のみのやつ）'
+HEADER_NAME = '名前（メッセージ内の宛名の置き換え）'
+HEADER_MESSAGE = 'メッセージテンプレート'
 
 # -------------------------------------------------------------------------------------------------
 # functions
@@ -82,7 +80,6 @@ if platform.system() == 'Windows':
         logging.error(f'get driver failed. {e}')
 else:
     logging.info('exec on other os')
-    # options.add_argument(user_data_dir)
     try:
         driver = webdriver.Chrome(options=options)
     except Exception as e:
@@ -112,12 +109,13 @@ except:
 
 result_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'{csv_dir}/result.csv')
 result_csv_file = open(result_csv_path, 'w', encoding='utf_8')
-result_csv_writer = csv.DictWriter(result_csv_file, ['name','username', 'メッセージテンプレート', '送信済み'], quotechar='"', quoting=csv.QUOTE_ALL)
+result_csv_writer = csv.DictWriter(result_csv_file, [HEADER_NAME, HEADER_USERNAME, HEADER_MESSAGE, HEADER_SEND_RESULT], quotechar='"',
+                                   quoting=csv.QUOTE_ALL)
 
 result_list = []
 
 for dm_setting in dm_csv_reader:
-    if dm_setting[header_send_result]:
+    if dm_setting[HEADER_SEND_RESULT]:
         continue
 
     driver.get("https://www.instagram.com/direct/inbox/")
@@ -135,8 +133,9 @@ for dm_setting in dm_csv_reader:
         # time.sleep(WAIT_TIME)
 
     try:
-        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[1]/div[1]/div/div[3]/button").click()
-        driver.find_element_by_name("queryBox").send_keys(dm_setting["username"])
+        driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div/div[2]/div/div/div[1]/div[1]/div/div[3]/button").click()
+        driver.find_element_by_name("queryBox").send_keys(dm_setting[HEADER_USERNAME])
 
         time.sleep(WAIT_TIME)
 
@@ -148,15 +147,26 @@ for dm_setting in dm_csv_reader:
         time.sleep(WAIT_TIME)
 
         # テキスト入力
-        text = dm_setting["メッセージテンプレート"].format(name=dm_setting["name"])
-        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea").send_keys(text)
+        text = dm_setting["メッセージテンプレート"].format(name=dm_setting[HEADER_NAME])
+        text_list = text.split('\n')
+        input_ele = driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea")
+        for t in text_list:
+            print(t)
+            driver.execute_script(f'var elm=arguments[0];elm.value += "{t}";elm.dispatchEvent(new Event("change"));',
+                                  input_ele)
+            input_ele.send_keys(Keys.SHIFT, Keys.ENTER)
+
+        time.sleep(WAIT_TIME)
 
         # 送信
-        driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button").click()
-    except:
+        driver.find_element_by_xpath(
+            "/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button").click()
+    except Exception as e:
+        print(e)
         continue
 
-    dm_setting.update({header_send_result: "済"})
+    dm_setting.update({HEADER_SEND_RESULT: "済"})
     result_list.append(dm_setting)
 
 result_csv_writer.writeheader()
