@@ -26,6 +26,25 @@ logging.debug('start')
 logging.debug(f'WAIT_TIME={WAIT_TIME}')
 
 # -------------------------------------------------------------------------------------------------
+# temp dir check
+# -------------------------------------------------------------------------------------------------
+try:
+    temp_dir = os.environ['TEMP']
+    os.makedirs(temp_dir, exist_ok=True)
+except:
+    logging.debug('TEMPは設定されていません')
+    os.environ['TEMP'] = "temp"
+    os.makedirs("temp", exist_ok=True)
+
+try:
+    tmp_dir = os.environ['TMP']
+    os.makedirs(tmp_dir, exist_ok=True)
+except:
+    logging.debug('環境変数TMPは設定されていません')
+    os.environ['TMP'] = "tmp"
+    os.makedirs("tmp", exist_ok=True)
+
+# -------------------------------------------------------------------------------------------------
 # csv check
 # -------------------------------------------------------------------------------------------------
 logging.info('check csv files')
@@ -86,7 +105,7 @@ if platform.system() == 'Windows':
 else:
     logging.info('exec on other os')
     try:
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(options=options, executable_path='./driver/chromedriver')
     except Exception as e:
         logging.error(f'get driver failed. {e}')
 
@@ -120,9 +139,11 @@ result_csv_writer = csv.DictWriter(result_csv_file,
                                    quoting=csv.QUOTE_ALL)
 
 result_list = []
+skip_all = False
 
 for dm_setting in dm_csv_reader:
-    if dm_setting[HEADER_SEND_RESULT]:
+    if dm_setting[HEADER_SEND_RESULT] or skip_all:
+        result_list.append(dm_setting)
         continue
 
     driver.get("https://www.instagram.com/direct/inbox/")
@@ -159,7 +180,6 @@ for dm_setting in dm_csv_reader:
         input_ele = driver.find_element_by_xpath(
             "/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea")
         for t in text_list:
-            print(t)
             driver.execute_script(f'var elm=arguments[0];elm.value += "{t}";elm.dispatchEvent(new Event("change"));',
                                   input_ele)
             input_ele.send_keys(Keys.SHIFT, Keys.ENTER)
@@ -175,7 +195,8 @@ for dm_setting in dm_csv_reader:
         filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
         driver.save_screenshot(filename=filename)
     except Exception as e:
-        print(e)
+        print(f'Exception={e}')
+        result_list.append(dm_setting)
         continue
 
     dm_setting.update({HEADER_SEND_RESULT: "済"})
