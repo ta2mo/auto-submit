@@ -141,6 +141,27 @@ def clear_input_by_xpath(driver, xpath):
         logging.error(f'not found xpath={xpath}')
         take_display_screenshot(driver)
 
+# -------------------------------------------------------------------------------------------------
+# temp dir check
+# -------------------------------------------------------------------------------------------------
+logging.info('temp dir check')
+try:
+    temp_dir = os.environ['TEMP']
+    logging.debug(f'temp_dir={temp_dir}')
+    os.makedirs(temp_dir, exist_ok=True)
+except:
+    logging.debug('TEMPは設定されていません')
+    os.environ['TEMP'] = "temp"
+    os.makedirs("temp", exist_ok=True)
+
+try:
+    tmp_dir = os.environ['TMP']
+    logging.debug(f'temp_dir={tmp_dir}')
+    os.makedirs(tmp_dir, exist_ok=True)
+except:
+    logging.debug('環境変数TMPは設定されていません')
+    os.environ['TMP'] = "tmp"
+    os.makedirs("tmp", exist_ok=True)
 
 options = webdriver.ChromeOptions()
 
