@@ -130,3 +130,6 @@ dmypy.json
 /instagram-dm.zip
 /instagram-dm/csv/result.csv
 /instagram-dm/ss/*.png
+
+# screenshot for debug
+**/ss/**
