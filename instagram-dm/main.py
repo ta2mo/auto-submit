@@ -1,4 +1,3 @@
-import configparser
 import logging
 import os
 import platform
@@ -14,12 +13,7 @@ from selenium.webdriver.common.keys import Keys
 # -------------------------------------------------------------------------------------------------
 # config
 # -------------------------------------------------------------------------------------------------
-config = configparser.ConfigParser()
-config.read('config.ini')
-
 WAIT_TIME = 3
-if 'wait_time' in config:
-    WAIT_TIME = config['DEFAULT']['wait_time']
 
 logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 logging.debug('start')
@@ -30,19 +24,29 @@ logging.debug(f'WAIT_TIME={WAIT_TIME}')
 # -------------------------------------------------------------------------------------------------
 try:
     temp_dir = os.environ['TEMP']
-    os.makedirs(temp_dir, exist_ok=True)
+    if os.path.exists(temp_dir):
+        logging.debug(f"temp_dir exists. path={temp_dir}")
+    else:
+        logging.debug(f"temp_dir not exists. path={temp_dir}")
+        os.mkdir(temp_dir)
 except:
     logging.debug('TEMPは設定されていません')
-    os.environ['TEMP'] = "temp"
-    os.makedirs("temp", exist_ok=True)
+    temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+    os.environ['TEMP'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+    os.makedirs(temp_dir, exist_ok=True)
 
 try:
     tmp_dir = os.environ['TMP']
-    os.makedirs(tmp_dir, exist_ok=True)
+    if os.path.exists(tmp_dir):
+        logging.debug(f"tmp_dir exists. path={tmp_dir}")
+    else:
+        logging.debug(f"tmp_dir not exists. path={tmp_dir}")
+        os.makedirs(tmp_dir, exist_ok=True)
 except:
     logging.debug('環境変数TMPは設定されていません')
-    os.environ['TMP'] = "tmp"
-    os.makedirs("tmp", exist_ok=True)
+    tmp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
+    os.environ['TMP'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
+    os.makedirs(tmp_dir, exist_ok=True)
 
 # -------------------------------------------------------------------------------------------------
 # csv check
@@ -94,10 +98,6 @@ user_data_dir = '--user-data-dir=/Users/nt/Library/Application Support/Google/Ch
 profile_directory = '--profile-directory="Profile 1'
 if platform.system() == 'Windows':
     logging.info('exec on windows')
-    user_data_dir = f'--user-data-dir="{config["DEFAULT"]["windows_profile_dir"]}"'
-    profile_directory = f'--profile-directory="{config["DEFAULT"]["profile_directory"]}"'
-    options.add_argument(user_data_dir)
-    options.add_argument(profile_directory)
     try:
         driver = webdriver.Chrome(options=options, executable_path='.\\driver\\chromedriver-89.exe')
     except Exception as e:
@@ -105,7 +105,7 @@ if platform.system() == 'Windows':
 else:
     logging.info('exec on other os')
     try:
-        driver = webdriver.Chrome(options=options, executable_path='./driver/chromedriver')
+        driver = webdriver.Chrome(options=options, executable_path='./driver/chromedriver-89')
     except Exception as e:
         logging.error(f'get driver failed. {e}')
 

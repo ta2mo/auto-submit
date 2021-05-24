@@ -7,9 +7,16 @@ instagram-dm
 ├ csv
 │ ├ dm.csv
 │ └ login_setting.csv
-├ main.exe
-└ main.cmd
+├ driver
+│ ├ chromedriver-89.exe (Windowsの場合)
+│ └ chromedriver-89 (Macの場合)
+├ main.exe (Windowsの場合)
+└ main (Macの場合)
 ```
+
+# 実行方法
+
+mainをダブルクリックする
 
 # 送信するInstagramアカウントの設定
 
