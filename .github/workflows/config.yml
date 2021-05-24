@@ -85,5 +85,5 @@ jobs:
       - name: archive zip file
         uses: actions/upload-artifact@v2
         with:
-          name: submit.exe
+          name: instagram-dm-win.zip
           path: D:\a\auto-submit\auto-submit\instagram-dm\instagram-dm-win.zip
