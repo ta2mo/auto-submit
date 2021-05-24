@@ -78,7 +78,7 @@ jobs:
           mkdir -p instagram-dm/csv
           mkdir -p instagram-dm/driver
           cp dist/main.exe instagram-dm/main.exe
-          cp driver/mac/chromedriver-89 instagram-dm/driver/
+          cp driver/win/chromedriver-89.exe instagram-dm/driver/
           cp README.md instagram-dm/
           zip -r instagram-dm-win.zip instagram-dm
 
