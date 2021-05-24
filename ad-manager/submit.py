@@ -32,6 +32,8 @@ if 'wait_time' in config:
 logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 logging.debug('start')
 logging.debug(f'WAIT_TIME={WAIT_TIME}')
+
+
 # logging.debug(f'LOG_LEVEL={LOG_LEVEL}')
 
 
@@ -141,28 +143,38 @@ def clear_input_by_xpath(driver, xpath):
         logging.error(f'not found xpath={xpath}')
         take_display_screenshot(driver)
 
+
 # -------------------------------------------------------------------------------------------------
 # temp dir check
 # -------------------------------------------------------------------------------------------------
-logging.info('temp dir check')
+logging.debug('temp dir check')
 try:
     temp_dir = os.environ['TEMP']
-    logging.debug(f'temp_dir={temp_dir}')
-    os.makedirs(temp_dir, exist_ok=True)
+    if os.path.exists(temp_dir):
+        logging.debug(f"temp_dir exists. path={temp_dir}")
+    else:
+        logging.debug(f"temp_dir not exists. path={temp_dir}")
+        os.mkdir(temp_dir)
 except:
     logging.debug('TEMPは設定されていません')
-    os.environ['TEMP'] = "temp"
-    os.makedirs("temp", exist_ok=True)
+    temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+    os.environ['TEMP'] = temp_dir
+    os.makedirs(temp_dir, exist_ok=True)
 
 try:
     tmp_dir = os.environ['TMP']
-    logging.debug(f'temp_dir={tmp_dir}')
-    os.makedirs(tmp_dir, exist_ok=True)
+    if os.path.exists(tmp_dir):
+        logging.debug(f"tmp_dir exists. path={tmp_dir}")
+    else:
+        logging.debug(f"tmp_dir not exists. path={tmp_dir}")
+        os.makedirs(tmp_dir, exist_ok=True)
 except:
     logging.debug('環境変数TMPは設定されていません')
-    os.environ['TMP'] = "tmp"
-    os.makedirs("tmp", exist_ok=True)
+    tmp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
+    os.environ['TMP'] = tmp_dir
+    os.makedirs(tmp_dir, exist_ok=True)
 
+logging.debug('driver settings')
 options = webdriver.ChromeOptions()
 
 user_data_dir = '--user-data-dir=/Users/nt/Library/Application Support/Google/Chrome/'
@@ -294,7 +306,8 @@ if '開始日時' in campaign_settings:
 if '年齢下限' in campaign_settings and '年齢上限' in campaign_settings:
     logging.info('年齢入力')
     try:
-        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
     except:
         logging.info("年齢選択テキストがありませんでした")
         take_display_screenshot(driver)
@@ -302,33 +315,40 @@ if '年齢下限' in campaign_settings and '年齢上限' in campaign_settings:
     # 年齢下限
     if '年齢下限' in campaign_settings:
         min_age_target_li = int(campaign_settings['年齢下限']) - 12
-        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div').click()
-        driver.find_element_by_xpath(f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div').click()
+        driver.find_element_by_xpath(
+            f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
 
     # 年齢上限
     if '年齢上限' in campaign_settings:
         min_age_target_li = int(campaign_settings['年齢上限']) - 12
-        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[4]').click()
-        driver.find_element_by_xpath(f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[4]').click()
+        driver.find_element_by_xpath(
+            f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]').click()
 
 if '性別' in campaign_settings:
     logging.info('性別')
     try:
-        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div[2]/div/div/span').click()
     except:
         logging.info("性別選択テキストがありませんでした")
         take_display_screenshot(driver)
 
     gender = campaign_settings['性別']
     if gender == '男性':
-        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
+        checkbox = driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
     elif gender == '女性':
-        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
-    else: # すべて
-        checkbox = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div[1]/div/input').click()
+        checkbox = driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[3]/div[1]/div/input').click()
+    else:  # すべて
+        checkbox = driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div[1]/div/input').click()
 
     expected_conditions.element_selection_state_to_be(checkbox, True)
-
 
 # 配置
 placement_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[7]/div/div/div/div/div/div[2]/div/div/div/div[3]/div[1]/div/div/div[2]'
@@ -479,7 +499,8 @@ time.sleep(WAIT_TIME)
 
 for i, row in enumerate(creative_csv_reader):
     if i != 0:
-        driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[2]/div/div/div[1]/div/div/div[3]/div/div/div/div[2]/div[2]').click()
+        driver.find_element_by_xpath(
+            '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[2]/div/div/div[1]/div/div/div[3]/div/div/div/div[2]/div[2]').click()
         time.sleep(10)
         quick_copy_xpath = '/html/body/div[1]/div/div/div/div[2]/div/div/div/div/ul/li[2]/div/div'
         driver.find_element_by_xpath(quick_copy_xpath).click()
@@ -570,7 +591,6 @@ for i, row in enumerate(creative_csv_reader):
         url_value = row['ウェブサイトのURL']
         url_element = driver.find_element_by_xpath(url_xpath).send_keys(url_value)
 
-
     while True:
         try:
             msg = driver.find_element_by_xpath(f'//div[@class="_3b62"]/span').text
@@ -584,7 +604,6 @@ for i, row in enumerate(creative_csv_reader):
         time.sleep(3)
 
     logging.info('保存完了')
-
 
 time.sleep(WAIT_TIME)
 
