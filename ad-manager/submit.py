@@ -232,6 +232,15 @@ for row in campaign_csv_reader:
 # -------------------------------------------------------------------------------------------------
 # 広告マネージャーを開く
 # -------------------------------------------------------------------------------------------------
+original_window = driver.current_window_handle
+driver.execute_script("window.open()")  # make new tab
+for i, window_handle in enumerate(driver.window_handles):
+    if window_handle == original_window:
+        logging.debug(f'switch new tab. original_window driver.title={driver.title}')
+        new_window = driver.window_handles[i + 1]  # 隣で新規タブが開かれる想定
+        driver.switch_to.window(new_window)
+        break
+
 if 'act' in campaign_settings:
     act = campaign_settings['act']
     query_string = f'act={act}'
