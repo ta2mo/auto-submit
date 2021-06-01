@@ -130,3 +130,6 @@ dmypy.json
 
 # screenshot for debug
 **/ss/**
+
+# for debug
+delete-chatwork-post/debug*
