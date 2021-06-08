@@ -12,6 +12,18 @@ def mouse_over_at_post(driver, message_id):
     retry_count = 0
     result = False
     while retry_count < 10:
+        # 読込中マークの確認
+        try:
+            driver.find_element_by_xpath('//*[@id="_chatContent"]/div[@class="sc-eOnLuU OfsCi"]')
+            retry_count += 1
+            logging.info('now loading.')
+            print('now loading.')
+            time.sleep(5)
+            continue
+        except NoSuchElementException:
+            print('loading complete.')
+            logging.debug('loading complete.')
+
         # 先頭の投稿にマウスオーバー
         try:
             top_post = driver.find_element_by_id(message_id)
@@ -90,7 +102,7 @@ def delete_post(driver, search_word):
         # 検索ボタン押下
         driver.find_element_by_id('_messageSearchSend').click()
 
-        time.sleep(WAIT_TIME)
+        time.sleep(7)
 
         # メッセージがない場合に終了する
         try:
@@ -133,6 +145,8 @@ def delete_post(driver, search_word):
 
         if not mouse_over_at_post(driver, message_id):
             logging.info(f'can not mouse over. message_id={message_id}')
+            with open(f'debug_{message_id}.html', mode="w") as f:
+                f.write(driver.page_source)
             retry_count += 1
             continue
 

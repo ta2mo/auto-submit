@@ -132,4 +132,5 @@ dmypy.json
 **/ss/**
 
 # for debug
+ad-manager/debug*
 delete-chatwork-post/debug*
