@@ -16,12 +16,10 @@ def mouse_over_at_post(driver, message_id):
         try:
             driver.find_element_by_xpath('//*[@id="_chatContent"]/div[@class="sc-eOnLuU OfsCi"]')
             retry_count += 1
-            logging.info('now loading.')
-            print('now loading.')
+            logging.debug('now loading.')
             time.sleep(5)
             continue
         except NoSuchElementException:
-            print('loading complete.')
             logging.debug('loading complete.')
 
         # 先頭の投稿にマウスオーバー
