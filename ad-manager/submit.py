@@ -41,6 +41,8 @@ logging.debug('開始')
 # -------------------------------------------------------------------------------------------------
 # functions
 # -------------------------------------------------------------------------------------------------
+
+
 def take_display_screenshot(driver):
     now = datetime.date.today()
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
@@ -53,6 +55,7 @@ def take_element_screenshot(element):
     png = element.screenshot_as_png
     with open(filename, 'wb') as f:
         f.write(png)
+
 
 def save_error_html(driver):
     now = datetime.date.today()
@@ -83,17 +86,18 @@ def click_button_by_class_name(driver, class_name):
         driver.find_element_by_xpath(f'//button[@class="{class_name}"]').click()
         wait()
     except NoSuchElementException:
-        logging.error(f'not found class_name={class_name}')
         take_display_screenshot(driver)
         save_error_html(driver)
+        logging.error(f'not found class_name={class_name}')
+
 
 def click_by_xpath(driver, xpath):
     try:
         driver.find_element_by_xpath(xpath).click()
-    except NoSuchElementException:
-        logging.error(f'No such element, cannot click. xpath={xpath}')
+    except NoSuchElementException as e:
         take_display_screenshot(driver)
         save_error_html(driver)
+        logging.error(f'No such element, cannot click. xpath={xpath}. e={e}.')
 
 
 def input_element_by_class_name(driver, class_name, value):
@@ -101,8 +105,8 @@ def input_element_by_class_name(driver, class_name, value):
         driver.find_element_by_xpath(f'//input[@class="{class_name}"]').send_keys(value)
         wait()
     except NoSuchElementException:
-        logging.error(f'not found class_name={class_name}')
         take_display_screenshot(driver)
+        logging.error(f'not found class_name={class_name}')
 
 
 def input_element_by_id(driver, id, value):
@@ -110,8 +114,8 @@ def input_element_by_id(driver, id, value):
         driver.find_element_by_xpath(f'//input[@id="{id}"]').send_keys(value)
         wait()
     except NoSuchElementException:
-        logging.error(f'not found class_name={id}')
         take_display_screenshot(driver)
+        logging.error(f'not found class_name={id}')
 
 
 def input_element_by_xpath(driver, xpath, value):
@@ -119,8 +123,8 @@ def input_element_by_xpath(driver, xpath, value):
         driver.find_element_by_xpath(xpath).send_keys(value)
         wait()
     except NoSuchElementException:
-        logging.error(f'not found xpath={xpath}')
         take_display_screenshot(driver)
+        logging.error(f'not found xpath={xpath}')
 
 
 def clear_input(driver, class_name):
@@ -131,8 +135,8 @@ def clear_input(driver, class_name):
             if input_text == '':
                 break
     except NoSuchElementException:
-        logging.error(f'not found class_name={class_name}')
         take_display_screenshot(driver)
+        logging.error(f'not found class_name={class_name}')
 
 
 def clear_input_by_id(driver, id):
@@ -143,8 +147,8 @@ def clear_input_by_id(driver, id):
             if input_text == '':
                 break
     except NoSuchElementException:
-        logging.error(f'not found class_name={id}')
         take_display_screenshot(driver)
+        logging.error(f'not found class_name={id}')
 
 
 def clear_input_by_xpath(driver, xpath):
@@ -155,8 +159,8 @@ def clear_input_by_xpath(driver, xpath):
             if input_text == '':
                 break
     except NoSuchElementException:
-        logging.error(f'not found xpath={xpath}')
         take_display_screenshot(driver)
+        logging.error(f'not found xpath={xpath}')
 
 
 def set_adset(driver, campaign_settings):
@@ -475,7 +479,8 @@ long_wait()
 # キャンペーン
 # -------------------------------------------------------------------------------------------------
 # 作成ボタン
-create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]/div/div[1]/div'
+# create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]/div/div[1]/div'
+create_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]'
 click_by_xpath(driver, create_button_xpath)
 wait()
 
