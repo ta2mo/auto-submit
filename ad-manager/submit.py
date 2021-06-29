@@ -485,8 +485,8 @@ long_wait()
 # キャンペーン
 # -------------------------------------------------------------------------------------------------
 # 作成ボタン
-# create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]/div/div[1]/div'
-create_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]'
+create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]'
+# create_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]'
 click_by_xpath(driver, create_button_xpath)
 wait()
 
