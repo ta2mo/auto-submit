@@ -46,7 +46,7 @@ logging.debug('開始')
 def take_display_screenshot(driver):
     now = datetime.date.today()
     ss_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ss')
-    if os.path.exists(ss_dir):
+    if not os.path.exists(ss_dir):
         os.mkdir(ss_dir)
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
     driver.save_screenshot(filename=filename)
@@ -55,7 +55,7 @@ def take_display_screenshot(driver):
 def take_element_screenshot(element):
     now = datetime.date.today()
     ss_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ss')
-    if os.path.exists(ss_dir):
+    if not os.path.exists(ss_dir):
         os.mkdir(ss_dir)
     filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
     png = element.screenshot_as_png
