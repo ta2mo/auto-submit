@@ -127,6 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/instagram-dm.zip
+/instagram-dm/csv/result.csv
+/instagram-dm/ss/*.png
+/instagram-dm/instagram-dm/**/*
 
 # screenshot for debug
 **/ss/**
