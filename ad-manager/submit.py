@@ -106,12 +106,20 @@ def click_button_by_class_name(driver, class_name):
 
 
 def click_by_xpath(driver, xpath):
-    try:
-        driver.find_element_by_xpath(xpath).click()
-    except NoSuchElementException as e:
+    retry_count = 0
+    max_retry_count = 100
+    while retry_count < max_retry_count:
+        try:
+            driver.find_element_by_xpath(xpath).click()
+        except NoSuchElementException as e:
+            logging.debug(f'Not found xpath={xpath}. retry_count={retry_count}')
+            wait()
+        retry_count += 1
+
+    if retry_count >= max_retry_count:
+        logging.error(f'Retry {retry_count} times. cannot click element. xpath={xpath}.')
         take_display_screenshot(driver)
         save_error_html(driver)
-        logging.error(f'No such element, cannot click. xpath={xpath}. e={e}.')
 
 
 def input_element_by_class_name(driver, class_name, value):
