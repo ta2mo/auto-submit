@@ -70,13 +70,19 @@ def save_error_html(driver):
 
 
 def click_element_by_id(driver, id):
-    try:
-        driver.find_element_by_id(id).click()
-        wait()
-    except NoSuchElementException:
-        logging.error(f'not found id={id}')
-        take_display_screenshot(driver)
+    retry_count = 0
+    max_retry_count = 10
+    while retry_count < max_retry_count:
+        try:
+            driver.find_element_by_id(id).click()
+            break
+        except NoSuchElementException:
+            logging.debug(f'not found id={id}. retry_count={retry_count}')
+        retry_count += 1
 
+    if retry_count >= max_retry_count:
+        logging.error(f'retry {retry_count} times. cannot click element. id={id}.')
+        take_display_screenshot(driver)
 
 def click_div_by_class_name(driver, class_name):
     try:
@@ -486,7 +492,6 @@ long_wait()
 # -------------------------------------------------------------------------------------------------
 # 作成ボタン
 create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]'
-# create_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[3]/div[3]/div/div[3]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]'
 click_by_xpath(driver, create_button_xpath)
 wait()
 
