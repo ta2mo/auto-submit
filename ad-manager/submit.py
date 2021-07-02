@@ -71,18 +71,20 @@ def save_error_html(driver):
 
 def click_element_by_id(driver, id):
     retry_count = 0
-    max_retry_count = 10
+    max_retry_count = 100
     while retry_count < max_retry_count:
         try:
             driver.find_element_by_id(id).click()
             break
         except NoSuchElementException:
             logging.debug(f'not found id={id}. retry_count={retry_count}')
+            wait()
         retry_count += 1
 
     if retry_count >= max_retry_count:
         logging.error(f'retry {retry_count} times. cannot click element. id={id}.')
         take_display_screenshot(driver)
+        save_error_html(driver)
 
 def click_div_by_class_name(driver, class_name):
     try:
