@@ -75,6 +75,7 @@ def click_element_by_id(driver, id):
     while retry_count < max_retry_count:
         try:
             driver.find_element_by_id(id).click()
+            wait()
             break
         except NoSuchElementException:
             logging.debug(f'not found id={id}. retry_count={retry_count}')
@@ -111,6 +112,8 @@ def click_by_xpath(driver, xpath):
     while retry_count < max_retry_count:
         try:
             driver.find_element_by_xpath(xpath).click()
+            wait()
+            break
         except NoSuchElementException as e:
             logging.debug(f'Not found xpath={xpath}. retry_count={retry_count}')
         wait()
