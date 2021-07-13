@@ -135,6 +135,13 @@ dmypy.json
 # screenshot for debug
 **/ss/**
 
+# idea
+.idea/*
+
+# build
+instagram-dm/main
+instagram-dm/instagram-dm-mac.zip
+
 # for debug
 ad-manager/debug*
 delete-chatwork-post/debug*

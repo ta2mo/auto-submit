@@ -1,4 +1,8 @@
 import configparser
+
+from selenium.webdriver.common.by import By
+
+import csv
 import datetime
 import logging
 import os
@@ -7,14 +11,11 @@ import re
 import sys
 import time
 
-from selenium.webdriver import ActionChains
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
 
-import csv
-
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
 
 # -------------------------------------------------------------------------------------------------
 # config
@@ -35,37 +36,41 @@ logging.basicConfig(filename='./debug.log', format='%(asctime)s %(levelname)s:%(
 logging.debug('start')
 logging.debug(f'WAIT_TIME={WAIT_TIME}')
 
-
 # logging.debug(f'LOG_LEVEL={LOG_LEVEL}')
 logging.debug('開始')
+
+
 # -------------------------------------------------------------------------------------------------
 # functions
 # -------------------------------------------------------------------------------------------------
 
 
 def take_display_screenshot(driver):
-    now = datetime.date.today()
+    now = datetime.datetime.now()
     ss_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ss')
     if not os.path.exists(ss_dir):
         os.mkdir(ss_dir)
-    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
+    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ss', f'{now.strftime("%Y-%m-%d_%H%M-%S")}.png')
     driver.save_screenshot(filename=filename)
 
 
 def take_element_screenshot(element):
-    now = datetime.date.today()
-    ss_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ss')
-    if not os.path.exists(ss_dir):
-        os.mkdir(ss_dir)
-    filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'ss/{now:%y%m%d-%h:%m:%ss}.png')
-    png = element.screenshot_as_png
-    with open(filename, 'wb') as f:
-        f.write(png)
+    try:
+        now = datetime.datetime.now()
+        ss_dir = os.path.join(os.getcwd(), 'ss')
+        if not os.path.exists(ss_dir):
+            os.mkdir(ss_dir)
+        filename = os.path.join(os.getcwd(), 'ss', f'{now.strftime("%Y-%m-%d_%H-%M-%S")}.png')
+        png = element.screenshot_as_png
+        with open(filename, 'wb') as f:
+            f.write(png)
+    except WebDriverException as e:
+        print(e)
 
 
 def save_error_html(driver):
-    now = datetime.date.today()
-    with open(f'debug_{now:%y%m%d-%h:%m:%ss}.html', mode="w") as f:
+    now = datetime.datetime.now()
+    with open(f'debug_{now.strftime("%Y-%m-%d_%H-%M-%S")}.html', mode="w") as f:
         f.write(driver.page_source)
 
 
@@ -74,22 +79,26 @@ def click_element_by_id(driver, id):
     max_retry_count = 100
     while retry_count < max_retry_count:
         try:
-            driver.find_element_by_id(id).click()
-            wait()
+            target_element = driver.find_element(By.ID, id)
             break
         except NoSuchElementException:
             logging.debug(f'not found id={id}. retry_count={retry_count}')
         wait()
         retry_count += 1
 
+    driver.execute_script(f'var elm=arguments[0];elm.click();', target_element)
+    wait()
+
     if retry_count >= max_retry_count:
         logging.error(f'retry {retry_count} times. cannot click element. id={id}.')
         take_display_screenshot(driver)
         save_error_html(driver)
 
+
 def click_div_by_class_name(driver, class_name):
     try:
-        driver.find_element_by_xpath(f'//div[@class="{class_name}"]').click()
+        target_element = driver.find_element(By.XPATH, f'//div[@class="{class_name}"]')
+        driver.execute_script(f'var elm=arguments[0];elm.click();', target_element)
         wait()
     except NoSuchElementException:
         logging.error(f'not found class_name={class_name}')
@@ -98,7 +107,8 @@ def click_div_by_class_name(driver, class_name):
 
 def click_button_by_class_name(driver, class_name):
     try:
-        driver.find_element_by_xpath(f'//button[@class="{class_name}"]').click()
+        target_element = driver.find_element(By.XPATH, f'//button[@class="{class_name}"]')
+        driver.execute_script(f'var elm=arguments[0];elm.click();', target_element)
         wait()
     except NoSuchElementException:
         take_display_screenshot(driver)
@@ -111,7 +121,8 @@ def click_by_xpath(driver, xpath):
     max_retry_count = 100
     while retry_count < max_retry_count:
         try:
-            driver.find_element_by_xpath(xpath).click()
+            target_element = driver.find_element(By.XPATH, xpath)
+            driver.execute_script(f'var elm=arguments[0];elm.click();', target_element)
             wait()
             break
         except NoSuchElementException as e:
@@ -125,18 +136,9 @@ def click_by_xpath(driver, xpath):
         save_error_html(driver)
 
 
-def input_element_by_class_name(driver, class_name, value):
-    try:
-        driver.find_element_by_xpath(f'//input[@class="{class_name}"]').send_keys(value)
-        wait()
-    except NoSuchElementException:
-        take_display_screenshot(driver)
-        logging.error(f'not found class_name={class_name}')
-
-
 def input_element_by_id(driver, id, value):
     try:
-        driver.find_element_by_xpath(f'//input[@id="{id}"]').send_keys(value)
+        driver.find_element(By.XPATH, f'//input[@id="{id}"]').send_keys(value)
         wait()
     except NoSuchElementException:
         take_display_screenshot(driver)
@@ -145,30 +147,18 @@ def input_element_by_id(driver, id, value):
 
 def input_element_by_xpath(driver, xpath, value):
     try:
-        driver.find_element_by_xpath(xpath).send_keys(value)
+        driver.find_element(By.XPATH, xpath).send_keys(value)
         wait()
     except NoSuchElementException:
         take_display_screenshot(driver)
         logging.error(f'not found xpath={xpath}')
 
 
-def clear_input(driver, class_name):
-    try:
-        while True:
-            driver.find_element_by_xpath(f'//input[@class="{class_name}"]').send_keys(Keys.BACK_SPACE)
-            input_text = driver.find_element_by_xpath(f'//input[@class="{class_name}"]').get_attribute('value')
-            if input_text == '':
-                break
-    except NoSuchElementException:
-        take_display_screenshot(driver)
-        logging.error(f'not found class_name={class_name}')
-
-
 def clear_input_by_id(driver, id):
     try:
         while True:
-            driver.find_element_by_xpath(f'//input[@id="{id}"]').send_keys(Keys.BACK_SPACE)
-            input_text = driver.find_element_by_xpath(f'//input[@id="{id}"]').get_attribute('value')
+            driver.find_element(By.XPATH, f'//input[@id="{id}"]').send_keys(Keys.BACK_SPACE)
+            input_text = driver.find_element(By.XPATH, f'//input[@id="{id}"]').get_attribute('value')
             if input_text == '':
                 break
     except NoSuchElementException:
@@ -179,8 +169,8 @@ def clear_input_by_id(driver, id):
 def clear_input_by_xpath(driver, xpath):
     try:
         while True:
-            driver.find_element_by_xpath(xpath).send_keys(Keys.BACK_SPACE)
-            input_text = driver.find_element_by_xpath(xpath).get_attribute('value')
+            driver.find_element(By.XPATH, xpath).send_keys(Keys.BACK_SPACE)
+            input_text = driver.find_element(By.XPATH, xpath).get_attribute('value')
             if input_text == '':
                 break
     except NoSuchElementException:
@@ -189,8 +179,16 @@ def clear_input_by_xpath(driver, xpath):
 
 
 def set_adset(driver, campaign_settings):
-    clear_input(driver, '_58al')
-    input_element_by_class_name(driver, '_58al', value=campaign_settings['広告セット名'])
+    adset_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
+    clear_input_by_xpath(driver, adset_input_xpath)
+    input_element_by_xpath(driver, adset_input_xpath, value=campaign_settings['広告セット名'])
+
+    if 'コンバージョンイベント' in campaign_settings:
+        conversion_event_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[2]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div/div/span/label/input'
+        click_by_xpath(driver, conversion_event_input_xpath)
+        save_error_html(driver)
+
+        time.sleep(100)
 
     if '予算' in campaign_settings:
         budget_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div[1]/div/div[2]/div/div[2]/div[2]/div[' \
@@ -233,21 +231,22 @@ def set_adset(driver, campaign_settings):
     if '性別' in campaign_settings:
         logging.info('性別')
         try:
-            driver.find_element_by_xpath(
-                '//*[@id="campaignTargetingSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div[2]/div/div').click()
+            driver.find_element(By.XPATH,
+                '//*[@id="campaignTargetingSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div[2]/div/div'
+            ).click()
         except:
             logging.info("性別選択テキストがありませんでした")
             take_display_screenshot(driver)
 
         gender = campaign_settings['性別']
         if gender == '男性':
-            checkbox = driver.find_element_by_xpath(
+            checkbox = driver.find_element(By.XPATH,
                 '//*[@id="GENDER"]/div/div/div/div/div[2]/div[1]/div/input').click()
         elif gender == '女性':
-            checkbox = driver.find_element_by_xpath(
+            checkbox = driver.find_element(By.XPATH,
                 '//*[@id="GENDER"]/div/div/div/div/div[3]/div[1]/div/input').click()
         else:  # すべて
-            checkbox = driver.find_element_by_xpath(
+            checkbox = driver.find_element(By.XPATH,
                 '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div/div/div[1]/div[17]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[5]/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div[1]/div/input').click()
 
         expected_conditions.element_selection_state_to_be(checkbox, True)
@@ -259,7 +258,7 @@ def set_adset(driver, campaign_settings):
     # デバイス
     device_select_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div/span'
     try:
-        driver.find_element_by_xpath(device_select_xpath).click()
+        driver.find_element(By.XPATH, device_select_xpath).click()
     except:
         logging.info('デバイス選択テキストがありませんでした')
 
@@ -366,7 +365,7 @@ def set_adset(driver, campaign_settings):
 def wait_until_save(driver, xpath):
     while True:
         try:
-            msg = driver.find_element_by_xpath(xpath).text
+            msg = driver.find_element(By.XPATH, xpath).text
         except:
             wait()
             continue
@@ -504,26 +503,32 @@ long_wait()
 # キャンペーン
 # -------------------------------------------------------------------------------------------------
 # 作成ボタン
-# create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]'
-create_button_xpath = '//*[@id="pe_toolbar"]/div/div/div/div[1]/div/div[1]/div[@role="button"]'
-click_by_xpath(driver, create_button_xpath)
-wait()
+toolbar_ele = driver.find_element(By.ID, 'pe_toolbar')
+create_button_ele = toolbar_ele.find_element(By.XPATH, './/*/div[@class="g1fckbup dfy4e4am h3y5hp2p sdgvddc7 b8b10xji okyvhjd0 rpcniqb6 jytk9n0j ojz0a1ch avm085bc mtc4pi7f jza0iyw7 njc9t6cs qhe9tvzt spzutpn9 puibpoiz svsqgeze if5qj5rh har4n1i8 diwav8v6 nlmdo9b9 h706y6tg qbdq5e12 j90q0chr rbzcxh88 h8e39ki1 rgsc13q7 a53abz89 llt6l64p pt6x234n bmtosu2b ndrgvajj s7wjoji2 jztyeye0 d5rc5kzv jdcxz0ji frrweqq6 qnavoh4n b1hd98k5 c332bl9r f1dwqt7s rqkdmjxc tb4cuiq2 nmystfjm kojzg8i3 m33fj6rl wy1fu5n8 chuaj5k6 hkz453cq dkjikr3h ay1kswi3 lcvupfea jq4kb4ie ft7osd3y"]')
+driver.execute_script(f'var elm=arguments[0];elm.click();', create_button_ele)
+long_wait()
 
 # 認知アップ選択
 click_element_by_id(driver, 'CONVERSIONS')
-wait()
+long_wait()
 
 # 次へ選択
 click_button_by_class_name(driver, '_271k _271m _1qjd layerConfirm _7tvm _7tv3 _7tv4')
-click_button_by_class_name(driver, '_271k _271m _1qjd _7tvm _7tv3 _7tv4')
-
 wait()
 
-# キャンペーン名入力
-clear_input(driver, '_58al')
-input_element_by_class_name(driver, '_58al', value=campaign_settings['キャンペーン名'])
+click_button_by_class_name(driver, '_271k _271m _1qjd _7tvm _7tv3 _7tv4')
+wait()
 
-wait_until_save(driver, '//div[@class="_3b62"]/span')
+driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[1]/div[5]/div/span/div/i')
+
+# キャンペーン名入力
+# campaign_input_xpath = '//*[@id="js_d1"]'
+campaign_input_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
+clear_input_by_xpath(driver, campaign_input_xpath)
+input_element_by_xpath(driver, campaign_input_xpath, value=campaign_settings['キャンペーン名'])
+
+save_text_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[2]/div/div/div/div/div[1]/span/div/div/div/span/div/span'
+wait_until_save(driver, save_text_xpath)
 
 button_xpath = '//div[@style="display: inline-block;"]/div[@style="display: inline-block;"]/button[@class="_271k _271m _1qjd _7tvm _7tv3 _7tv4"]'
 click_by_xpath(driver, button_xpath)
@@ -564,7 +569,7 @@ for i, row in enumerate(creative_csv_reader):
     while i != 0:
         try:
             adset_xpath = f'/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/div/div[1]/div/div/div[{adset_count + 2}]/div/div/div/div[1]/div/div/span'
-            text = driver.find_element_by_xpath(adset_xpath).text
+            text = driver.find_element(By.XPATH, adset_xpath).text
             hoge = re.match(r'^.*\s-\sコピー$', text)
             if re.match(r'^.*\s-\sコピー$', text):
                 target_ad_xpath = f'/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[2]/div/div[2]/div[1]/div/div/div[{adset_count + 3}]/div/div/div/div[1]'
@@ -573,17 +578,14 @@ for i, row in enumerate(creative_csv_reader):
                     # コピーした広告セットをクリック
                     click_by_xpath(driver, adset_xpath)
 
-                    # click_by_xpath(driver, adset_xpath)
-                    # time.sleep(15)
-
                     # 広告セット名の ' - コピー'を削除する
                     adset_name_xpath = '//*[@id="campaignNameSection"]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
-                    driver.find_element_by_xpath(adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
+                    driver.find_element(By.XPATH, adset_name_xpath).send_keys(Keys.BACK_SPACE)
                     wait()
 
                     click_by_xpath(driver, target_ad_xpath)
@@ -609,7 +611,8 @@ for i, row in enumerate(creative_csv_reader):
 
     if i == 0:
         # メディアを追加をクリック
-        click_by_xpath(driver, '//*[@id="ads_pe_container"]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button')
+        click_by_xpath(driver,
+                       '//*[@id="ads_pe_container"]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button')
         wait()
 
         # 画像を追加をクリック
@@ -631,9 +634,7 @@ for i, row in enumerate(creative_csv_reader):
 
     image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'image/{file_name}')
     image_input_xpath = '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[1]/div/div[1]/div/div/input'
-    driver.find_element_by_xpath(
-        image_input_xpath
-    ).send_keys(image_file)
+    driver.find_element(By.XPATH, image_input_xpath).send_keys(image_file)
     wait()
 
     logging.info(f'upload complete {file_name}')
@@ -643,7 +644,7 @@ for i, row in enumerate(creative_csv_reader):
     while True:
         image_name_xpath = f'/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[{count}]/div/div/div[2]/div'
 
-        text = driver.find_element_by_xpath(image_name_xpath).text
+        text = driver.find_element(By.XPATH, image_name_xpath).text
         if text == file_name:
             click_by_xpath(driver, image_name_xpath)
             wait()
@@ -666,14 +667,14 @@ for i, row in enumerate(creative_csv_reader):
         title_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/textarea'
         clear_input_by_xpath(driver, title_xpath)
         title_value = row['見出し']
-        title_element = driver.find_element_by_xpath(title_xpath).send_keys(title_value)
+        title_element = driver.find_element(By.XPATH, title_xpath).send_keys(title_value)
 
     # 説明
     if '説明' in row and is_FBFD(campaign_settings):
         description_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[3]/div/div[1]/div[1]/div[2]/div/div[1]/textarea'
         clear_input_by_xpath(driver, description_xpath)
         description_value = row['説明']
-        description_element = driver.find_element_by_xpath(description_xpath).send_keys(description_value)
+        description_element = driver.find_element(By.XPATH, description_xpath).send_keys(description_value)
 
     if i == 0:
         # ウェブサイトのURL
@@ -681,15 +682,15 @@ for i, row in enumerate(creative_csv_reader):
             url_xpath = '//*[@id="ads_pe_container"]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[4]/div/div/div/div/div/div[2]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div[2]/div/div/div[2]/div/div[1]/div/div/div/div[1]/textarea'
             clear_input_by_xpath(driver, url_xpath)
             url_value = row['ウェブサイトのURL']
-            url_element = driver.find_element_by_xpath(url_xpath).send_keys(url_value)
+            url_element = driver.find_element(By.XPATH, url_xpath).send_keys(url_value)
 
     # メインテキスト
     if i != 0:
         main_text_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div/div/div/span'
         while True:
-            driver.find_element_by_xpath(main_text_xpath).send_keys(Keys.DELETE)
+            driver.find_element(By.XPATH, main_text_xpath).send_keys(Keys.DELETE)
             try:
-                input_text = driver.find_element_by_xpath(main_text_xpath).text.strip("\"")
+                input_text = driver.find_element(By.XPATH, main_text_xpath).text.strip("\"")
             except:
                 break
 
@@ -697,14 +698,13 @@ for i, row in enumerate(creative_csv_reader):
                 break
 
     main_text_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div/div/div/span/br'
-    main_text_element = driver.find_element_by_xpath(main_text_xpath)
+    main_text_element = driver.find_element(By.XPATH, main_text_xpath)
     main_text_value = row['メインテキスト']
     main_text_element.send_keys(main_text_value.strip().strip("\""))
 
-
     while True:
         try:
-            msg = driver.find_element_by_xpath(f'//div[@class="_3b62"]/span').text
+            msg = driver.find_element(By.XPATH, '//div[@class="_3b62"]/span').text
         except:
             wait()
             continue
@@ -715,7 +715,6 @@ for i, row in enumerate(creative_csv_reader):
         wait()
 
     logging.info('保存完了')
-
 
 wait()
 
