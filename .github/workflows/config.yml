@@ -122,8 +122,10 @@ jobs:
         run: |
           mkdir -p instagram-dm-from-spreadsheet/csv
           mkdir -p instagram-dm-from-spreadsheet/driver
+          mkdir -p instagram-dm-from-spreadsheet/secret
           cp dist/main.exe instagram-dm-from-spreadsheet/main.exe
           cp README.md instagram-dm-from-spreadsheet/
+          cp secret/diet-project.json instagram-dm-from-spreadsheet/secret/
 
       - name: packaging ver89
         shell: pwsh
