@@ -120,24 +120,24 @@ jobs:
       - name: packaging
         shell: pwsh
         run: |
-          mkdir -p instagram-dm-for-spreadsheet/csv
-          mkdir -p instagram-dm-for-spreadsheet/driver
-          cp dist/main.exe instagram-dm-for-spreadsheet/main.exe
-          cp README.md instagram-dm-for-spreadsheet/
+          mkdir -p instagram-dm-from-spreadsheet/csv
+          mkdir -p instagram-dm-from-spreadsheet/driver
+          cp dist/main.exe instagram-dm-from-spreadsheet/main.exe
+          cp README.md instagram-dm-from-spreadsheet/
 
       - name: packaging ver89
         shell: pwsh
         run: |
-          cp driver/win/chromedriver-89.exe instagram-dm-for-spreadsheet/driver/
-          Compress-Archive -DestinationPath instagram-dm-for-spreadsheet-win-89.zip -Path instagram-dm-for-spreadsheet
-          rm instagram-dm-for-spreadsheet/driver/chromedriver-89.exe
+          cp driver/win/chromedriver-89.exe instagram-dm-from-spreadsheet/driver/
+          Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-89.zip -Path instagram-dm-from-spreadsheet
+          rm instagram-dm-from-spreadsheet/driver/chromedriver-89.exe
 
       - name: packaging ver91
         shell: pwsh
         run: |
-          cp driver/win/chromedriver-91.exe instagram-dm-for-spreadsheet/driver/
-          Compress-Archive -DestinationPath instagram-dm-for-spreadsheet-win-91.zip -Path instagram-dm-for-spreadsheet
-          rm instagram-dm-for-spreadsheet/driver/chromedriver-91.exe
+          cp driver/win/chromedriver-91.exe instagram-dm-from-spreadsheet/driver/
+          Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-91.zip -Path instagram-dm-from-spreadsheet
+          rm instagram-dm-from-spreadsheet/driver/chromedriver-91.exe
           ls
           pwd
 
@@ -145,10 +145,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: instagram-dm-win.zip
-          path: D:\a\auto-submit\auto-submit\instagram-dm-for-spreadsheet\instagram-dm-for-spreadsheet-win-89.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-from-spreadsheet/instagram-dm-from-spreadsheet-win-89.zip
 
       - name: archive ver91 zip file
         uses: actions/upload-artifact@v2
         with:
           name: instagram-dm-win.zip
-          path: D:\a\auto-submit\auto-submit\instagram-dm-for-spreadsheet\instagram-dm-for-spreadsheet-win-91.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-from-spreadsheet\instagram-dm-from-spreadsheet-win-91.zip
