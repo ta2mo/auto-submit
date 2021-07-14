@@ -153,7 +153,7 @@ result_csv_writer = csv.DictWriter(result_csv_file,
 
 
 # spreadsheet
-json_file_name = "secret/diet-project.json"
+json_file_name = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'secret', 'diet-project.json')
 spread_sheet_key = "1XRdnOIn31ZXNfeMe6mDskgGKCXbi7Nmj_bqiX5q-yM4"
 
 dm_setting_worksheet, account_list_worksheet = connect_gspread(json_file_name, spread_sheet_key)
