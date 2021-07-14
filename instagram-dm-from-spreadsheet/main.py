@@ -159,18 +159,6 @@ spread_sheet_key = "1XRdnOIn31ZXNfeMe6mDskgGKCXbi7Nmj_bqiX5q-yM4"
 dm_setting_worksheet, account_list_worksheet = connect_gspread(json_file_name, spread_sheet_key)
 rows = dm_setting_worksheet.get_all_records(empty2zero=False, head=1, default_blank='')
 
-# for row in rows:
-#     if not row[HEADER_USERNAME]:
-#         break
-#
-#     if row[HEADER_SEND_RESULT]:
-#         result_list.append(row)
-#         continue
-#
-#     print(row)
-#
-# quit()
-
 for dm_setting in rows:
     if not dm_setting[HEADER_USERNAME]:
         break

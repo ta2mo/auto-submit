@@ -128,14 +128,14 @@ jobs:
       - name: packaging ver89
         shell: pwsh
         run: |
-          cp driver/win/chromedriver-89.exe instagram-dm-from-spreadsheet/driver/
+          cp driver/win/chromedriver-89.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
           Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-89.zip -Path instagram-dm-from-spreadsheet
           rm instagram-dm-from-spreadsheet/driver/chromedriver-89.exe
 
       - name: packaging ver91
         shell: pwsh
         run: |
-          cp driver/win/chromedriver-91.exe instagram-dm-from-spreadsheet/driver/
+          cp driver/win/chromedriver-91.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
           Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-91.zip -Path instagram-dm-from-spreadsheet
           rm instagram-dm-from-spreadsheet/driver/chromedriver-91.exe
           ls
