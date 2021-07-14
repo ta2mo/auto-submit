@@ -113,9 +113,9 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: make exec file
+      - name: make exe file
         run: |
-          pyinstaller --onefile --add-data "secret/" main.py
+          pyinstaller --onefile --add-data "./secret/diet-project.json" main.py
 
       - name: packaging
         shell: pwsh
@@ -125,14 +125,14 @@ jobs:
             cp dist/main.exe instagram-dm-for-spreadsheet/main.exe
             cp README.md instagram-dm-for-spreadsheet/
 
-      - name: packaging-89
+      - name: packaging ver89
         shell: pwsh
         run: |
           cp driver/win/chromedriver-89.exe instagram-dm-for-spreadsheet/driver/
           Compress-Archive -DestinationPath instagram-dm-for-spreadsheet-win-89.zip -Path instagram-dm-for-spreadsheet
           rm -rf instagram-dm-for-spreadsheet/driver/*.exe
 
-      - name: packaging-91
+      - name: packaging ver91
           shell: pwsh
           run: |
             cp driver/win/chromedriver-91.exe instagram-dm-for-spreadsheet/driver/
