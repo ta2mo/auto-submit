@@ -130,16 +130,14 @@ jobs:
         run: |
           cp driver/win/chromedriver-89.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
           Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-89.zip -Path instagram-dm-from-spreadsheet
-          rm instagram-dm-from-spreadsheet/driver/chromedriver-89.exe
+          rm instagram-dm-from-spreadsheet/driver/chromedriver.exe
 
       - name: packaging ver91
         shell: pwsh
         run: |
           cp driver/win/chromedriver-91.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
           Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-91.zip -Path instagram-dm-from-spreadsheet
-          rm instagram-dm-from-spreadsheet/driver/chromedriver-91.exe
-          ls
-          pwd
+          rm instagram-dm-from-spreadsheet/driver/chromedriver.exe
 
       - name: archive ver89 zip file
         uses: actions/upload-artifact@v2
