@@ -143,10 +143,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: instagram-dm-win.zip
-          path: D:\a\auto-submit\auto-submit\instagram-dm\instagram-dm-for-spreadsheet-win-89.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-for-spreadsheet\instagram-dm-for-spreadsheet-win-89.zip
 
       - name: archive ver91 zip file
         uses: actions/upload-artifact@v2
         with:
           name: instagram-dm-win.zip
-          path: D:\a\auto-submit\auto-submit\instagram-dm\instagram-dm-for-spreadsheet-win-91.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-for-spreadsheet\instagram-dm-for-spreadsheet-win-91.zip
