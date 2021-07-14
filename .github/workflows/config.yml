@@ -115,7 +115,7 @@ jobs:
 
       - name: make exe file
         run: |
-          pyinstaller --onefile --add-data "./secret/diet-project.json" main.py
+          pyinstaller --onefile --add-data "./secret/diet-project.json;./secret/" main.py
 
       - name: packaging
         shell: pwsh
