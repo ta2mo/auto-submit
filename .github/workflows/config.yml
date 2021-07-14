@@ -91,7 +91,7 @@ jobs:
   build-instagram-dm-from-spreadsheet-win:
     defaults:
       run:
-        working-directory: ./instagram-dm
+        working-directory: ./instagram-dm-from-spreadsheet
     runs-on: windows-latest
     strategy:
       matrix:
