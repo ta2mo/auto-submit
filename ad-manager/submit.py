@@ -121,6 +121,24 @@ def click_by_xpath(driver, xpath):
     max_retry_count = 100
     while retry_count < max_retry_count:
         try:
+            driver.find_element(By.XPATH, xpath).click()
+            break
+        except NoSuchElementException as e:
+            logging.debug(f'Not found xpath={xpath}. retry_count={retry_count}')
+        wait()
+        retry_count += 1
+
+    if retry_count >= max_retry_count:
+        logging.error(f'Retry {retry_count} times. cannot click element. xpath={xpath}.')
+        take_display_screenshot(driver)
+        save_error_html(driver)
+
+
+def click_by_script(driver, xpath):
+    retry_count = 0
+    max_retry_count = 50
+    while retry_count < max_retry_count:
+        try:
             target_element = driver.find_element(By.XPATH, xpath)
             driver.execute_script(f'var elm=arguments[0];elm.click();', target_element)
             wait()
@@ -146,12 +164,22 @@ def input_element_by_id(driver, id, value):
 
 
 def input_element_by_xpath(driver, xpath, value):
-    try:
-        driver.find_element(By.XPATH, xpath).send_keys(value)
+    retry_count = 0
+    max_retry_count = 50
+    while retry_count < max_retry_count:
+        try:
+            driver.find_element(By.XPATH, xpath).send_keys(value)
+            wait()
+        except NoSuchElementException:
+            take_display_screenshot(driver)
+            logging.error(f'not found xpath={xpath}')
         wait()
-    except NoSuchElementException:
+        retry_count += 1
+
+    if retry_count >= max_retry_count:
+        logging.error(f'Retry {retry_count} times. cannot input. xpath={xpath}.')
         take_display_screenshot(driver)
-        logging.error(f'not found xpath={xpath}')
+        save_error_html(driver)
 
 
 def clear_input_by_id(driver, id):
@@ -179,53 +207,55 @@ def clear_input_by_xpath(driver, xpath):
 
 
 def set_adset(driver, campaign_settings):
-    adset_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
+    adset_input_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
     clear_input_by_xpath(driver, adset_input_xpath)
     input_element_by_xpath(driver, adset_input_xpath, value=campaign_settings['広告セット名'])
 
-    if 'コンバージョンイベント' in campaign_settings:
-        conversion_event_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[2]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div/div/span/label/input'
-        click_by_xpath(driver, conversion_event_input_xpath)
-        save_error_html(driver)
-
-        time.sleep(100)
+    ## if 'コンバージョンイベント' in campaign_settings:
+    ##     logging.debug('コンバージョンイベント')
+    ##     conversion_event_input_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[2]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div/div/div/div[2]/div/div[2]/div/div[2]/div/div/div/div[2]/div/div[1]/div/div/span/label/input'
+    ##     click_by_xpath(driver, conversion_event_input_xpath)
+    ##     save_error_html(driver)
 
     if '予算' in campaign_settings:
-        budget_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div[1]/div/div[2]/div/div[2]/div[2]/div[' \
-                       '3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[5]/div/div/div/div/div[' \
-                       '2]/div/div/div/div[1]/div/div/div[2]/div/div/div/div[1]/div[3]/div/span/input '
+        logging.debug('予算')
+        budget_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[5]/div/div/div/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div/div[1]/div[3]/div/span/input'
         click_by_xpath(driver, budget_xpath)
         clear_input_by_xpath(driver, budget_xpath)
         input_element_by_xpath(driver, budget_xpath, value=campaign_settings['予算'])
 
     if '開始日時' in campaign_settings:
         logging.info('開始日時')
-        clear_input_by_id(driver, 'js_12i')
-        input_element_by_id(driver, 'js_12i', value=campaign_settings['開始日時'])
+        start_datetime_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[5]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[1]/div/div[2]/div/span[1]/div/div/span/div/span/div/div/span/input'
+        clear_input_by_xpath(driver, start_datetime_xpath)
+        input_element_by_xpath(driver, start_datetime_xpath, value=campaign_settings['開始日時'])
+
+    if '終了日時' in campaign_settings:
+        logging.info('終了日時')
 
     if '年齢下限' in campaign_settings and '年齢上限' in campaign_settings:
         logging.info('年齢入力')
         try:
-            age_select_xpath = '//*[@id="campaignTargetingSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div[2]'
+            age_select_xpath = '//*[@id="AGE"]/div/div/div/div[2]'
             click_by_xpath(driver, age_select_xpath)
         except:
             logging.info("年齢選択テキストがありませんでした")
             take_display_screenshot(driver)
 
-        # 年齢下限
         if '年齢下限' in campaign_settings:
+            logging.debug('年齢下限')
             min_age_target_li = int(campaign_settings['年齢下限']) - 12
-            min_age_target_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[2]/div'
-            click_by_xpath(driver, min_age_target_xpath)
-            min_age_li_xpath = f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]'
+            min_age_target_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[2]'
+            click_by_script(driver, min_age_target_xpath)
+            min_age_li_xpath = f'/html/body/div[1]/div/div/div/div[3]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{min_age_target_li}]/div/div[1]'
             click_by_xpath(driver, min_age_li_xpath)
 
-        # 年齢上限
         if '年齢上限' in campaign_settings:
+            logging.debug('年齢上限')
             max_age_target_li = int(campaign_settings['年齢上限']) - 12
-            max_age_target_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[6]/div/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div/div[2]/div/div/div/div/div[4]/div'
-            click_by_xpath(driver, max_age_target_xpath)
-            max_age_li_xpath = f'/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{max_age_target_li}]/div/div[1]'
+            max_age_target_xpath = '//*[@id="AGE"]/div/div/div/div[4]/div'
+            click_by_script(driver, max_age_target_xpath)
+            max_age_li_xpath = f'/html/body/div[1]/div/div/div/div[3]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[{max_age_target_li}]/div/div[1]'
             click_by_xpath(driver, max_age_li_xpath)
 
     if '性別' in campaign_settings:
@@ -252,25 +282,26 @@ def set_adset(driver, campaign_settings):
         expected_conditions.element_selection_state_to_be(checkbox, True)
 
     # 配置
-    placement_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div'
+    placement_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div/input'
     click_by_xpath(driver, placement_xpath)
 
     # デバイス
-    device_select_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div/span'
-    try:
-        driver.find_element(By.XPATH, device_select_xpath).click()
-    except:
-        logging.info('デバイス選択テキストがありませんでした')
+    if 'デバイス' in campaign_settings:
+        device_select_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div/div/div/div[2]/div/div/span'
+        try:
+            driver.find_element(By.XPATH, device_select_xpath).click()
+        except:
+            logging.info('デバイス選択テキストがありませんでした')
 
-    device_selectbox_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div/div[2]/div'
-    click_by_xpath(driver, device_selectbox_xpath)
+        device_selectbox_xpath = '//*[@id="campaignPlacementSection"]/div/div/div/div/div[2]/div/div/div/div[2]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div/div[2]/div'
+        click_by_xpath(driver, device_selectbox_xpath)
 
-    desktop_input_xpath = '/html/body/div[1]/div/div/div/div[4]/div/div/div/div/div/div/div[1]/div/div/div/ul/li[2]/div/div[1]'
-    click_by_xpath(driver, desktop_input_xpath)
+        desktop_input_xpath = '//*[@id="globalContainer"]/div[3]/div/div/div/div/div/div/div/div/div/div/ul/li[2]'
+        click_by_xpath(driver, desktop_input_xpath)
 
-    placement_title_xpath = '//*[@id="placement-feed"]/div'
-    click_by_xpath(driver, placement_title_xpath)
-    wait()
+        placement_title_xpath = '//*[@id="placement-feed"]/div'
+        click_by_xpath(driver, placement_title_xpath)
+        wait()
 
     # プラットフォーム
     # Facebook
@@ -298,20 +329,20 @@ def set_adset(driver, campaign_settings):
     fb_feed_xpath = '//*[@id="placement-facebook/feed"]/div/input'
     fb_news_feed_xpath = '//*[@id="placement-facebook/feed"]/div/input'
 
+    # initialize
+    click_by_xpath(driver, ig_input_xpath)
+    wait()
+    click_by_xpath(driver, ig_input_xpath)
+    wait()
+    click_by_xpath(driver, an_input_xpath)
+    wait()
+    click_by_xpath(driver, ms_input_xpath)
+    wait()
+    click_by_xpath(driver, ms_input_xpath)
+    wait()
+
     if is_FBFD(campaign_settings):
         logging.info('FBFD')
-
-        click_by_xpath(driver, ig_input_xpath)
-        wait()
-        click_by_xpath(driver, ig_input_xpath)
-        wait()
-        click_by_xpath(driver, an_input_xpath)
-        wait()
-        click_by_xpath(driver, ms_input_xpath)
-        wait()
-        click_by_xpath(driver, ms_input_xpath)
-        wait()
-
         click_by_xpath(driver, fb_feed_xpath)
         wait()
         click_by_xpath(driver, fb_st_xpath)
@@ -352,13 +383,11 @@ def set_adset(driver, campaign_settings):
 
     if is_ST(campaign_settings):
         logging.info('ST')
-        click_by_xpath(driver, instream_check_xpath)
+        click_by_xpath(driver, ig_st_xpath)
         wait()
-        click_by_xpath(driver, search_check_xpath)
+        click_by_xpath(driver, fb_st_xpath)
         wait()
-        click_by_xpath(driver, inpost_check_xpath)
-        wait()
-        click_by_xpath(driver, app_and_site_check_xpath)
+        click_by_xpath(driver, ms_st_xpath)
         wait()
 
 
@@ -519,10 +548,14 @@ wait()
 click_button_by_class_name(driver, '_271k _271m _1qjd _7tvm _7tv3 _7tv4')
 wait()
 
-driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[1]/div[5]/div/span/div/i')
+
+# 表示領域調整
+col_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[1]/div[5]/div/span/div'
+col_button = driver.find_element(By.XPATH, col_button_xpath)
+if col_button.get_attribute('aria-label') == "表示を拡大":
+    col_button.click()
 
 # キャンペーン名入力
-# campaign_input_xpath = '//*[@id="js_d1"]'
 campaign_input_xpath = '/html/body/div[1]/div/div/div/div/div/div/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div/span/label/input'
 clear_input_by_xpath(driver, campaign_input_xpath)
 input_element_by_xpath(driver, campaign_input_xpath, value=campaign_settings['キャンペーン名'])
@@ -557,7 +590,7 @@ for i, row in enumerate(creative_csv_reader):
         click_by_xpath(driver, three_point_icon_xpath)
         wait()
 
-        quick_copy_xpath = '//*[@id="globalContainer"]/div[3]/div/div/div/div/ul/li[2]'
+        quick_copy_xpath = '//*[@id="globalContainer"]/div[2]/div/div/div/div/ul/li[2]/div/div'
         click_by_xpath(driver, quick_copy_xpath)
         wait()
 
@@ -599,8 +632,11 @@ for i, row in enumerate(creative_csv_reader):
             break
 
     # シングル画像または動画を選択
-    select_image_button = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/div/div[2]/div[1]/div/ul/div[1]/div/div[1]/div/div[2]/div[1]/div/div/div/div[2]/div/div[1]/div/button'
-    click_by_xpath(driver, select_image_button)
+    select_image_button = '//*[@id="ads_pe_container"]/div[1]/div/div/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[1]/div/div/div[2]/div/div/div/div[2]/div[2]/div/div/div/div[1]/div[1]/div[1]'
+    try:
+        driver.find_element(By.XPATH, select_image_button)
+    except NoSuchElementException as e:
+        logging.debug(f'no select. e={e}')
     wait()
 
     # 広告名を入力
@@ -611,17 +647,17 @@ for i, row in enumerate(creative_csv_reader):
 
     if i == 0:
         # メディアを追加をクリック
-        click_by_xpath(driver,
-                       '//*[@id="ads_pe_container"]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button')
+        add_media_xpath = '//*[@id="ads_pe_container"]/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[3]/div/span[1]/div/button'
+        click_by_script(driver, add_media_xpath)
         wait()
 
         # 画像を追加をクリック
-        click_by_xpath(driver, '/html/body/div[1]/div/div/div/div[3]/div/div/div/div/div/div[1]/div/div/ul/li[1]/div')
+        click_by_xpath(driver, '/html/body/div[1]/div/div/div/div[2]/div/div/div/div/div/div[1]/div/div/ul/li[1]/div/div/div[1]')
         wait()
     else:
         # 編集ボタンをクリック
         edit_button_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div[2]/div/div/div[2]/ul/div/div/div[1]'
-        click_by_xpath(driver, edit_button_xpath)
+        click_by_script(driver, edit_button_xpath)
         wait()
 
         # メディアを変更ボタンをクリック
@@ -633,7 +669,7 @@ for i, row in enumerate(creative_csv_reader):
     main_text = row['メインテキスト']
 
     image_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), f'image/{file_name}')
-    image_input_xpath = '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[1]/div/div[1]/div/div/input'
+    image_input_xpath = '/html/body/div[6]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div/div/div/div[1]/div/div[1]/div/div/input'
     driver.find_element(By.XPATH, image_input_xpath).send_keys(image_file)
     wait()
 
@@ -642,9 +678,13 @@ for i, row in enumerate(creative_csv_reader):
     # アップロードした画像ファイルをクリック
     count = 1
     while True:
-        image_name_xpath = f'/html/body/div[6]/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div[2]/div[4]/div[1]/div/div/div[{count}]/div/div/div[2]/div'
+        image_name_xpath = f'/html/body/div[6]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/div[2]/div/div/div[2]/div[1]/div[2]/div/div/div/div[4]/div[1]/div/div/div[{count}]/div/div/div[2]/div'
 
-        text = driver.find_element(By.XPATH, image_name_xpath).text
+        try:
+            text = driver.find_element(By.XPATH, image_name_xpath).text
+        except:
+            logging.debug(f'image file not found. count={count}.')
+            break
         if text == file_name:
             click_by_xpath(driver, image_name_xpath)
             wait()
@@ -653,13 +693,18 @@ for i, row in enumerate(creative_csv_reader):
         count += 1
 
     # 次へ
-    next_button = '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div'
+    next_button = '//*[@id="facebook"]/body/div[6]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/div[2]/div/div/div[3]/div/div[3]/div/span/div/div/div'
     click_by_xpath(driver, next_button)
     wait()
 
     # 次へ
-    next_confirm_button = '/html/body/div[6]/div[2]/div/div/div/div/div/div/div[2]/span[2]/div/div[2]/div/div'
+    next_confirm_button = '/html/body/div[6]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/div[2]/div/div/div[3]/div/div[3]/div/span/div/div/div'
     click_by_xpath(driver, next_confirm_button)
+    wait()
+
+    # 最適化を次へ
+    confirm_button = '/html/body/div[6]/div[2]/div/div/div/div/div[1]/div/div/div[1]/div[2]/div[2]/div/div/div[3]/div/div[3]/div/span/div/div/div'
+    click_by_xpath(driver, confirm_button)
     wait()
 
     # 見出し
@@ -667,7 +712,7 @@ for i, row in enumerate(creative_csv_reader):
         title_xpath = '/html/body/div[1]/div/div/div/div[1]/div/div/div[1]/div/div[1]/div[2]/div/div[2]/div[2]/div[3]/div/div[2]/div/div/div/div[1]/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div[2]/div/div/div/div[3]/div/div/div[2]/div/div[1]/div[1]/div[2]/div/div[1]/textarea'
         clear_input_by_xpath(driver, title_xpath)
         title_value = row['見出し']
-        title_element = driver.find_element(By.XPATH, title_xpath).send_keys(title_value)
+        input_element_by_xpath(driver, title_xpath, title_value)
 
     # 説明
     if '説明' in row and is_FBFD(campaign_settings):
