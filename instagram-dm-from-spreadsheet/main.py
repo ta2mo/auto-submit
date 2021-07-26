@@ -71,6 +71,8 @@ login_csv_reader = csv.DictReader(login_csv_file)
 
 for row in login_csv_reader:
     login_setting = row
+    print(login_setting)
+    logging.debug(f'login_setting={login_setting}')
     break
 
 logging.info("complete check csv")
