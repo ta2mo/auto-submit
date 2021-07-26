@@ -66,13 +66,11 @@ if not os.path.exists(login_csv_path):
     logging.error('ログイン設定のCSVファイルが存在しません')
     sys.exit(1)
 
-login_csv_file = open(login_csv_path, 'r', encoding='utf_8')
+login_csv_file = open(login_csv_path, 'r', encoding='utf-8-sig') # BOM付きファイル対応
 login_csv_reader = csv.DictReader(login_csv_file)
 
 for row in login_csv_reader:
     login_setting = row
-    print(login_setting)
-    logging.debug(f'login_setting={login_setting}')
     break
 
 logging.info("complete check csv")
