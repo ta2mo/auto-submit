@@ -87,3 +87,68 @@ jobs:
         with:
           name: instagram-dm-win.zip
           path: D:\a\auto-submit\auto-submit\instagram-dm\instagram-dm-win.zip
+
+  build-instagram-dm-from-spreadsheet-win:
+    defaults:
+      run:
+        working-directory: ./instagram-dm-from-spreadsheet
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [ 3.8 ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # setup visual studio
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v1
+
+      # set up python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: make exe file
+        run: |
+          pyinstaller --onefile --add-data "./secret/diet-project.json;./secret/" main.py
+
+      - name: packaging
+        shell: pwsh
+        run: |
+          mkdir -p instagram-dm-from-spreadsheet/csv
+          mkdir -p instagram-dm-from-spreadsheet/driver
+          mkdir -p instagram-dm-from-spreadsheet/secret
+          cp dist/main.exe instagram-dm-from-spreadsheet/main.exe
+          cp README.md instagram-dm-from-spreadsheet/
+          cp secret/diet-project.json instagram-dm-from-spreadsheet/secret/
+
+      - name: packaging ver89
+        shell: pwsh
+        run: |
+          cp driver/win/chromedriver-89.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
+          Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-89.zip -Path instagram-dm-from-spreadsheet
+          rm instagram-dm-from-spreadsheet/driver/chromedriver.exe
+
+      - name: packaging ver91
+        shell: pwsh
+        run: |
+          cp driver/win/chromedriver-91.exe instagram-dm-from-spreadsheet/driver/chromedriver.exe
+          Compress-Archive -DestinationPath instagram-dm-from-spreadsheet-win-91.zip -Path instagram-dm-from-spreadsheet
+          rm instagram-dm-from-spreadsheet/driver/chromedriver.exe
+
+      - name: archive ver89 zip file
+        uses: actions/upload-artifact@v2
+        with:
+          name: instagram-dm-from-spreadsheet-win-89.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-from-spreadsheet/instagram-dm-from-spreadsheet-win-89.zip
+
+      - name: archive ver91 zip file
+        uses: actions/upload-artifact@v2
+        with:
+          name: instagram-dm-from-spreadsheet-win-91.zip
+          path: D:\a\auto-submit\auto-submit\instagram-dm-from-spreadsheet\instagram-dm-from-spreadsheet-win-91.zip

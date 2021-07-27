@@ -135,6 +135,9 @@ dmypy.json
 # screenshot for debug
 **/ss/**
 
+# for build
+instagram-dm-from-spreadsheet/build/**/*
+
 # idea
 .idea/*
 
