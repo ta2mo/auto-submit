@@ -152,3 +152,55 @@ jobs:
         with:
           name: instagram-dm-from-spreadsheet-win-91.zip
           path: D:\a\auto-submit\auto-submit\instagram-dm-from-spreadsheet\instagram-dm-from-spreadsheet-win-91.zip
+
+  build-instagram-follow-win:
+    defaults:
+      run:
+        working-directory: ./instagram-follow
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [ 3.8 ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # setup visual studio
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v1
+
+      # set up python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: make exe file
+        run: |
+          pyinstaller --onefile --add-data "./secret/diet-project.json;./secret/" main.py
+
+      - name: packaging
+        shell: pwsh
+        run: |
+          mkdir -p instagram-follow/csv
+          mkdir -p instagram-follow/driver
+          mkdir -p instagram-follow/secret
+          cp dist/main.exe instagram-follow/main.exe
+          cp README.md instagram-follow/
+          cp secret/diet-project.json instagram-follow/secret/
+
+      - name: packaging ver91
+        shell: pwsh
+        run: |
+          cp driver/win/chromedriver-91.exe instagram-follow/driver/chromedriver.exe
+          Compress-Archive -DestinationPath instagram-follow-win-91.zip -Path instagram-follow
+          rm instagram-follow/driver/chromedriver.exe
+
+      - name: archive ver91 zip file
+        uses: actions/upload-artifact@v2
+        with:
+          name: instagram-follow-win-91.zip
+          path: D:\a\auto-submit\auto-submit\instagram-follow\instagram-follow-win-91.zip
